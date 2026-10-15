@@ -78,6 +78,7 @@ export function ScenarioDetail() {
   const [executionPanelOpen, setExecutionPanelOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('editor');
   const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
   const [guidelinesOpen, setGuidelinesOpen] = useState(false);
   const [navConfirmOpen, setNavConfirmOpen] = useState(false);
 
@@ -166,14 +167,18 @@ export function ScenarioDetail() {
 
   return (
     <div className="space-y-4 h-full">
-      <WorkspaceTabs onTabClick={handleTabClick} />
-      <ScenarioHeader
-        scenario={scenario}
-        selectedInfrastructure={selectedInfrastructure}
-        onDeploy={() => setExecutionPanelOpen(true)}
-        onEdit={() => navigate(`/scenarios/${id}/edit`)}
-        onNavigateProject={handleNavProject}
-      />
+      {!focusMode && (
+        <>
+          <WorkspaceTabs onTabClick={handleTabClick} />
+          <ScenarioHeader
+            scenario={scenario}
+            selectedInfrastructure={selectedInfrastructure}
+            onDeploy={() => setExecutionPanelOpen(true)}
+            onEdit={() => navigate(`/scenarios/${id}/edit`)}
+            onNavigateProject={handleNavProject}
+          />
+        </>
+      )}
       <ExecutionPanel
         scenarioId={id!}
         scenarioTitle={scenario.title}
@@ -183,7 +188,12 @@ export function ScenarioDetail() {
         onOpenChange={setExecutionPanelOpen}
         onExecutionStart={topology.handleExecutionStart}
       />
-      <div className="flex gap-4" style={{ height: 'calc(100vh - 200px)' }}>
+      {/* Focus mode reclaims the header's height: 148px = app header (64px) + main
+          padding (48px) + MainLayout's breadcrumb (20px line + 16px margin). */}
+      <div
+        className="flex gap-4"
+        style={{ height: focusMode ? 'calc(100vh - 148px)' : 'calc(100vh - 200px)' }}
+      >
         <div className="flex-1 min-w-0 transition-all duration-300">
           <ScenarioTabs
             activeTab={activeTab}
@@ -206,6 +216,8 @@ export function ScenarioDetail() {
               onInfrastructureChange: handleInfrastructureChange,
               onValidate: topology.handleValidate,
               onHelpClick: () => setGuidelinesOpen(true),
+              focusMode,
+              onFocusModeChange: setFocusMode,
             }}
             onCloseExecution={() => {
               topology.handleCloseExecution();
