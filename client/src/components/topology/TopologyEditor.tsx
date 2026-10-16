@@ -11,6 +11,8 @@ import {
   PanelLeftOpen,
   HelpCircle,
   CheckCircle2,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import {
   Select,
@@ -30,9 +32,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { YamlEditor } from './YamlEditor';
-import { TopologyCanvas } from './TopologyCanvas';
+import { TopologyCanvas, type TopologyChangeMeta } from './TopologyCanvas';
 import { cn } from '@/lib/utils';
-import { dump as yamlDump } from 'js-yaml';
+import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
 import { edgeKindOf, EDGE_TYPE_SPELLING } from '@/lib/topology-roles';
 import type { ServiceDeployment } from '@/lib/services';
 
@@ -98,6 +100,95 @@ export function nodesToYaml(nodes: TopologyNode[], edges: TopologyEdge[]): strin
   return yamlDump(topology, { indent: 2, lineWidth: -1 });
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+// Parse YAML edited in the code view back into canvas nodes/edges — the
+// inverse of nodesToYaml. Existing nodes/edges are matched by id so fields the
+// YAML does not carry (role decorations, edge styling) survive the edit.
+// Returns null while the YAML is invalid or mid-edit (unparseable, missing a
+// `services` list, entries without an id, duplicate ids) so the canvas keeps
+// its last good state instead of flickering on every keystroke.
+export function yamlToTopology(
+  yaml: string,
+  prevNodes: TopologyNode[],
+  prevEdges: TopologyEdge[]
+): { nodes: TopologyNode[]; edges: TopologyEdge[] } | null {
+  let doc: unknown;
+  try {
+    doc = yamlLoad(yaml);
+  } catch {
+    return null;
+  }
+  if (!isRecord(doc) || !Array.isArray(doc.services)) return null;
+  const rawConnections = doc.connections ?? [];
+  if (!Array.isArray(rawConnections)) return null;
+
+  const prevNodesById = new Map(prevNodes.map((n) => [n.id, n]));
+  const nodes: TopologyNode[] = [];
+  for (const raw of doc.services) {
+    if (!isRecord(raw) || typeof raw.id !== 'string' || raw.id === '') return null;
+    if (nodes.some((n) => n.id === raw.id)) return null;
+    const prev = prevNodesById.get(raw.id);
+    const pos = isRecord(raw.position) ? raw.position : {};
+    const label = raw.name != null ? String(raw.name) : raw.id;
+    const data: TopologyNode['data'] = {
+      ...prev?.data,
+      label,
+      serviceTitle: raw.title != null ? String(raw.title) : label,
+      type: raw.type != null ? String(raw.type) : undefined,
+      serviceId: raw.serviceId != null ? String(raw.serviceId) : undefined,
+    };
+    if (raw.version != null && raw.version !== '') {
+      data.version = String(raw.version);
+    } else {
+      delete data.version;
+    }
+    nodes.push({
+      ...prev,
+      id: raw.id,
+      position: {
+        x: typeof pos.x === 'number' ? pos.x : (prev?.position.x ?? 0),
+        y: typeof pos.y === 'number' ? pos.y : (prev?.position.y ?? 0),
+      },
+      data,
+    });
+  }
+
+  const nodeIds = new Set(nodes.map((n) => n.id));
+  const prevEdgesById = new Map(prevEdges.map((e) => [e.id, e]));
+  const edges: TopologyEdge[] = [];
+  for (const raw of rawConnections) {
+    if (!isRecord(raw) || typeof raw.from !== 'string' || typeof raw.to !== 'string') return null;
+    // A connection to a service removed from the YAML cannot be drawn.
+    if (!nodeIds.has(raw.from) || !nodeIds.has(raw.to)) continue;
+    const id = typeof raw.id === 'string' && raw.id !== '' ? raw.id : `${raw.from}-${raw.to}`;
+    if (edges.some((e) => e.id === id)) return null;
+    const kind = edgeKindOf(raw.type);
+    // Start from the existing edge, then let the YAML own the edge type.
+    const edge = {
+      ...prevEdgesById.get(id),
+      id,
+      source: raw.from,
+      target: raw.to,
+    } as TopologyEdge & {
+      label?: string;
+    };
+    const data: Record<string, unknown> = { ...edge.data };
+    delete data.edgeType;
+    delete data.type;
+    delete edge.label;
+    if (kind) {
+      data.edgeType = EDGE_TYPE_SPELLING[kind];
+      edge.label = EDGE_TYPE_SPELLING[kind];
+    }
+    edge.data = data;
+    edges.push(edge);
+  }
+
+  return { nodes, edges };
+}
+
 type ViewMode = 'code' | 'visual' | 'split';
 
 interface ServiceOption {
@@ -135,6 +226,9 @@ interface TopologyEditorProps {
   onHelpClick?: () => void;
   /** Callback invoked when the user confirms clearing the canvas. */
   onClearCanvas?: () => void;
+  /** Focus mode hides the page chrome and infrastructure row to enlarge the canvas. */
+  focusMode?: boolean;
+  onFocusModeChange?: (focusMode: boolean) => void;
 }
 
 export function TopologyEditor({
@@ -154,16 +248,23 @@ export function TopologyEditor({
   onValidate,
   onHelpClick,
   onClearCanvas,
+  focusMode = false,
+  onFocusModeChange,
 }: TopologyEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('visual');
   const [codeCollapsed, setCodeCollapsed] = useState(false);
   const isUpdatingFromCanvas = useRef(false);
 
-  // Sync nodes/edges changes to YAML
+  // Sync nodes/edges changes to YAML. View-only changes (React Flow measuring
+  // nodes, selection) leave the topology untouched, so they must not
+  // regenerate the YAML — in split view that would overwrite the user's
+  // in-progress text (comments, formatting, cursor) right after a YAML edit
+  // re-renders the canvas.
   const handleNodesChangeWithYamlSync = useCallback(
-    (newNodes: object[]) => {
-      isUpdatingFromCanvas.current = true;
+    (newNodes: object[], meta?: TopologyChangeMeta) => {
       onNodesChange(newNodes);
+      if (meta?.viewOnly) return;
+      isUpdatingFromCanvas.current = true;
       const newYaml = nodesToYaml(newNodes as TopologyNode[], edges as TopologyEdge[]);
       onYamlChange(newYaml);
       // Reset flag after a short delay
@@ -175,9 +276,10 @@ export function TopologyEditor({
   );
 
   const handleEdgesChangeWithYamlSync = useCallback(
-    (newEdges: object[]) => {
-      isUpdatingFromCanvas.current = true;
+    (newEdges: object[], meta?: TopologyChangeMeta) => {
       onEdgesChange(newEdges);
+      if (meta?.viewOnly) return;
+      isUpdatingFromCanvas.current = true;
       const newYaml = nodesToYaml(nodes as TopologyNode[], newEdges as TopologyEdge[]);
       onYamlChange(newYaml);
       // Reset flag after a short delay
@@ -206,10 +308,41 @@ export function TopologyEditor({
     [onNodesChange, onEdgesChange, onYamlChange]
   );
 
+  // Every node/edge seen so far, by id. YAML is parsed on each keystroke, so a
+  // transient state that still parses (an id half-retyped, a service block cut
+  // to be pasted elsewhere) drops nodes/edges; when the id comes back, its
+  // YAML-invisible data (deployment config overrides, edge styling) is
+  // restored from here instead of being lost for good.
+  const seenNodesById = useRef(new Map<string, TopologyNode>());
+  const seenEdgesById = useRef(new Map<string, TopologyEdge>());
+
+  // Sync YAML edits from the code view back to the canvas (split mode shows
+  // both at once, so a renamed node must update its visual label).
+  const handleYamlChangeWithCanvasSync = useCallback(
+    (newYaml: string) => {
+      onYamlChange(newYaml);
+      for (const node of nodes as TopologyNode[]) seenNodesById.current.set(node.id, node);
+      for (const edge of edges as TopologyEdge[]) seenEdgesById.current.set(edge.id, edge);
+      // The seen maps are only used to look up prior data by id; the result
+      // still contains exactly the services/connections the YAML lists.
+      const topology = yamlToTopology(
+        newYaml,
+        [...seenNodesById.current.values()],
+        [...seenEdgesById.current.values()]
+      );
+      if (!topology) return;
+      onNodesChange(topology.nodes);
+      onEdgesChange(topology.edges);
+    },
+    [onYamlChange, onNodesChange, onEdgesChange, nodes, edges]
+  );
+
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   const handleReset = useCallback(() => {
     // Reset to empty topology
+    seenNodesById.current.clear();
+    seenEdgesById.current.clear();
     onYamlChange('');
     onNodesChange([]);
     onEdgesChange([]);
@@ -224,7 +357,7 @@ export function TopologyEditor({
   return (
     <div className="flex flex-col h-full">
       {/* Infrastructure Selector and Help Section */}
-      <div className="border-b px-4 py-3 bg-background space-y-3">
+      <div className={cn('border-b px-4 py-3 bg-background space-y-3', focusMode && 'hidden')}>
         <div className="flex items-center gap-3">
           <div className="flex-1 max-w-xs">
             <label className="text-sm font-medium text-foreground block mb-1">
@@ -272,8 +405,8 @@ export function TopologyEditor({
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b px-4 py-2 bg-muted/30">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2 bg-muted/30">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center rounded-md border bg-background p-1">
             <Button
               variant={viewMode === 'code' ? 'secondary' : 'ghost'}
@@ -312,7 +445,26 @@ export function TopologyEditor({
             </Badge>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {onFocusModeChange && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onFocusModeChange(!focusMode)}
+              title={
+                focusMode
+                  ? 'Show the scenario header and infrastructure selector'
+                  : 'Hide the scenario header and infrastructure selector to enlarge the canvas'
+              }
+            >
+              {focusMode ? (
+                <Minimize2 className="h-4 w-4 mr-1" />
+              ) : (
+                <Maximize2 className="h-4 w-4 mr-1" />
+              )}
+              {focusMode ? 'Show header' : 'Hide header'}
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -362,7 +514,7 @@ export function TopologyEditor({
       <div className="flex-1 min-h-0">
         {viewMode === 'code' && (
           <div className="h-full">
-            <YamlEditor value={yamlProp} onChange={onYamlChange} />
+            <YamlEditor value={yamlProp} onChange={handleYamlChangeWithCanvasSync} />
           </div>
         )}
 
@@ -389,7 +541,7 @@ export function TopologyEditor({
               )}
             >
               <div className="h-full w-full min-w-[400px]">
-                <YamlEditor value={yamlProp} onChange={onYamlChange} />
+                <YamlEditor value={yamlProp} onChange={handleYamlChangeWithCanvasSync} />
               </div>
             </div>
             {/* Toggle Button */}
