@@ -1,0 +1,704 @@
+[
+  {
+    "id": "DR01",
+    "category": "filter",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "List all services provided by SINTEF.",
+    "groundTruth": "SECDEVTWIN, SECOPSTWIN",
+    "expected": {
+      "type": "set",
+      "value": ["SECDEVTWIN", "SECOPSTWIN"]
+    },
+    "spec": {
+      "where": [["provider", "eq", "SINTEF (STF)"]],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR02",
+    "category": "filter",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which services are in the Monitor category?",
+    "groundTruth": "MMT-PROBE, SECANOD",
+    "expected": {
+      "type": "set",
+      "value": ["MMT-PROBE", "SECANOD"]
+    },
+    "spec": {
+      "where": [["category", "eq", "Monitor"]],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR03",
+    "category": "filter",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which partner infrastructures belong to the Energy sector?",
+    "groundTruth": "PPC-EMOB, PPC-IIOT, SPS-DEVSECOPS, UIH-PROSUMER",
+    "expected": {
+      "type": "set",
+      "value": ["PPC-EMOB", "PPC-IIOT", "SPS-DEVSECOPS", "UIH-PROSUMER"]
+    },
+    "spec": {
+      "where": [
+        ["license", "eq", "N/A (Partner Infrastructure)"],
+        ["sector", "eq", "Energy"]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR04",
+    "category": "filter",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which services implement the 3GPP standard?",
+    "groundTruth": "AALTO-EDGE5G, ORO-3GPP16, ORO-5GLAB",
+    "expected": {
+      "type": "set",
+      "value": ["AALTO-EDGE5G", "ORO-3GPP16", "ORO-5GLAB"]
+    },
+    "spec": {
+      "where": [["standards", "contains", "3GPP"]],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR05",
+    "category": "filter",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which services support the UC3 Renewable Prosumer Energy use case?",
+    "groundTruth": "SPS-DEVSECOPS, UIH-PROSUMER",
+    "expected": {
+      "type": "set",
+      "value": ["SPS-DEVSECOPS", "UIH-PROSUMER"]
+    },
+    "spec": {
+      "where": [["potentialUseCases", "contains", "UC3 - Renewable Prosumer Energy"]],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR06",
+    "category": "negation",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which Montimage services are not in the Ops Services category?",
+    "groundTruth": "AI4SOAR, CI-SIM, HTTP-SIM, MAG, MMT-PROBE, SECANOD, SECSIM",
+    "expected": {
+      "type": "set",
+      "value": ["AI4SOAR", "CI-SIM", "HTTP-SIM", "MAG", "MMT-PROBE", "SECANOD", "SECSIM"]
+    },
+    "spec": {
+      "where": [
+        ["provider", "eq", "Montimage (MTI)"],
+        ["category", "eq", "Ops Services", true]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR07",
+    "category": "negation",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which Dev Services tools are not provided by Tecnalia?",
+    "groundTruth": "CSAM, SECDEVTWIN, SECNCD, SECSIM, SECVDR",
+    "expected": {
+      "type": "set",
+      "value": ["CSAM", "SECDEVTWIN", "SECNCD", "SECSIM", "SECVDR"]
+    },
+    "spec": {
+      "where": [
+        ["category", "eq", "Dev Services"],
+        ["provider", "eq", "Tecnalia (TEC)", true]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR08",
+    "category": "negation",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which partner infrastructures are not hardware?",
+    "groundTruth": "AALTO-EDGE5G, IDEKO-CNC, ORO-5GLAB, PPC-IIOT, SAVVY-DEVSRV, SPS-DEVSECOPS, TELLU-CARE",
+    "expected": {
+      "type": "set",
+      "value": [
+        "AALTO-EDGE5G",
+        "IDEKO-CNC",
+        "ORO-5GLAB",
+        "PPC-IIOT",
+        "SAVVY-DEVSRV",
+        "SPS-DEVSECOPS",
+        "TELLU-CARE"
+      ]
+    },
+    "spec": {
+      "where": [
+        ["license", "eq", "N/A (Partner Infrastructure)"],
+        ["type", "eq", "Hardware", true]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR09",
+    "category": "comparison",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which Tecnalia services have a current TRL below 4?",
+    "groundTruth": "SECSAC",
+    "expected": {
+      "type": "set",
+      "value": ["SECSAC"]
+    },
+    "spec": {
+      "where": [
+        ["provider", "eq", "Tecnalia (TEC)"],
+        ["trlCurrent", "lt", 4]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR10",
+    "category": "comparison",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which toolbox services have a current TRL of 6 or higher?",
+    "groundTruth": "CI-SIM, HTTP-SIM, MAG, MMT-PROBE, SECAISOAR, SECANOD",
+    "expected": {
+      "type": "set",
+      "value": ["CI-SIM", "HTTP-SIM", "MAG", "MMT-PROBE", "SECAISOAR", "SECANOD"]
+    },
+    "spec": {
+      "where": [
+        ["repositoryTable", "eq", "INTACT_TOOLBOX"],
+        ["trlCurrent", "gte", 6]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR11",
+    "category": "comparison",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which Dev Services tools are expected to reach a TRL above 7?",
+    "groundTruth": "none (empty set)",
+    "expected": {
+      "type": "set",
+      "value": []
+    },
+    "spec": {
+      "where": [
+        ["category", "eq", "Dev Services"],
+        ["trlExpected", "gt", 7]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR12",
+    "category": "count",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "How many services does Montimage provide?",
+    "groundTruth": "8 (AI4SOAR, CI-SIM, HTTP-SIM, MAG, MMT-PROBE, SECAISOAR, SECANOD, SECSIM)",
+    "expected": {
+      "type": "number",
+      "value": 8,
+      "services": [
+        "AI4SOAR",
+        "CI-SIM",
+        "HTTP-SIM",
+        "MAG",
+        "MMT-PROBE",
+        "SECAISOAR",
+        "SECANOD",
+        "SECSIM"
+      ]
+    },
+    "spec": {
+      "where": [["provider", "eq", "Montimage (MTI)"]],
+      "agg": "count"
+    }
+  },
+  {
+    "id": "DR13",
+    "category": "count",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "How many partner infrastructures are hardware?",
+    "groundTruth": "7 (AALTO-LUMI, AST-DEDISRV, ITPAERO-CFAA, ITPAERO-CLUSTER, ORO-3GPP16, PPC-EMOB, UIH-PROSUMER)",
+    "expected": {
+      "type": "number",
+      "value": 7,
+      "services": [
+        "AALTO-LUMI",
+        "AST-DEDISRV",
+        "ITPAERO-CFAA",
+        "ITPAERO-CLUSTER",
+        "ORO-3GPP16",
+        "PPC-EMOB",
+        "UIH-PROSUMER"
+      ]
+    },
+    "spec": {
+      "where": [
+        ["license", "eq", "N/A (Partner Infrastructure)"],
+        ["type", "eq", "Hardware"]
+      ],
+      "agg": "count"
+    }
+  },
+  {
+    "id": "DR14",
+    "category": "count",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "How many services are in the Dev Services category?",
+    "groundTruth": "8 (CSAM, SECASSURE4AI, SECDEVTWIN, SECINTERP, SECNCD, SECSAC, SECSIM, SECVDR)",
+    "expected": {
+      "type": "number",
+      "value": 8,
+      "services": [
+        "CSAM",
+        "SECASSURE4AI",
+        "SECDEVTWIN",
+        "SECINTERP",
+        "SECNCD",
+        "SECSAC",
+        "SECSIM",
+        "SECVDR"
+      ]
+    },
+    "spec": {
+      "where": [["category", "eq", "Dev Services"]],
+      "agg": "count"
+    }
+  },
+  {
+    "id": "DR15",
+    "category": "min-max",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Among all Montimage services, which one has the lowest current TRL?",
+    "groundTruth": "4 (SECSIM)",
+    "expected": {
+      "type": "extremum",
+      "value": 4,
+      "services": ["SECSIM"]
+    },
+    "spec": {
+      "where": [["provider", "eq", "Montimage (MTI)"]],
+      "agg": "min:trlCurrent"
+    }
+  },
+  {
+    "id": "DR16",
+    "category": "min-max",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which Dev Services tool has the highest current TRL?",
+    "groundTruth": "5 (CSAM, SECNCD, SECVDR)",
+    "expected": {
+      "type": "extremum",
+      "value": 5,
+      "services": ["CSAM", "SECNCD", "SECVDR"]
+    },
+    "spec": {
+      "where": [["category", "eq", "Dev Services"]],
+      "agg": "max:trlCurrent"
+    }
+  },
+  {
+    "id": "DR17",
+    "category": "min-max",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "What is the lowest current TRL among Tecnalia's services?",
+    "groundTruth": "3 (SECSAC)",
+    "expected": {
+      "type": "extremum",
+      "value": 3,
+      "services": ["SECSAC"]
+    },
+    "spec": {
+      "where": [["provider", "eq", "Tecnalia (TEC)"]],
+      "agg": "min:trlCurrent"
+    }
+  },
+  {
+    "id": "DR18",
+    "category": "group-by",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which provider has the most services in the Dev Services category?",
+    "groundTruth": "Tecnalia (TEC) (3)",
+    "expected": {
+      "type": "argmax",
+      "value": ["Tecnalia (TEC)"],
+      "count": 3,
+      "groups": {
+        "CERTH": ["SECNCD", "SECVDR"],
+        "Fraunhofer Fokus (FF)": ["CSAM"],
+        "Montimage (MTI)": ["SECSIM"],
+        "SINTEF (STF)": ["SECDEVTWIN"],
+        "Tecnalia (TEC)": ["SECASSURE4AI", "SECINTERP", "SECSAC"]
+      }
+    },
+    "spec": {
+      "where": [["category", "eq", "Dev Services"]],
+      "group": "provider",
+      "agg": "argmaxCount"
+    }
+  },
+  {
+    "id": "DR19",
+    "category": "group-by",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "How many services does each provider have in the Ops Services category?",
+    "groundTruth": "Apache Software Foundation: 1; Montimage (MTI): 1; SINTEF (STF): 1; Tecnalia (TEC): 1",
+    "expected": {
+      "type": "counts",
+      "value": {
+        "Apache Software Foundation": 1,
+        "Montimage (MTI)": 1,
+        "SINTEF (STF)": 1,
+        "Tecnalia (TEC)": 1
+      }
+    },
+    "spec": {
+      "where": [["category", "eq", "Ops Services"]],
+      "group": "provider",
+      "agg": "countPerGroup"
+    }
+  },
+  {
+    "id": "DR20",
+    "category": "group-by",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "For each project use case UC1 to UC5, which partner infrastructure supports it?",
+    "groundTruth": "UC1 - Telecom Software Development Life Cycle: ORO-3GPP16, ORO-5GLAB; UC2 - Aerospace Digitalization Platform: ITPAERO-CFAA, ITPAERO-CLUSTER; UC3 - Renewable Prosumer Energy: SPS-DEVSECOPS, UIH-PROSUMER; UC4 - Healthcare (eHealth SaaS): TELLU-CARE; UC5 - Smart Charging Stations: PPC-EMOB, PPC-IIOT",
+    "expected": {
+      "type": "groups",
+      "value": {
+        "UC1 - Telecom Software Development Life Cycle": ["ORO-3GPP16", "ORO-5GLAB"],
+        "UC2 - Aerospace Digitalization Platform": ["ITPAERO-CFAA", "ITPAERO-CLUSTER"],
+        "UC3 - Renewable Prosumer Energy": ["SPS-DEVSECOPS", "UIH-PROSUMER"],
+        "UC4 - Healthcare (eHealth SaaS)": ["TELLU-CARE"],
+        "UC5 - Smart Charging Stations": ["PPC-EMOB", "PPC-IIOT"]
+      }
+    },
+    "spec": {
+      "where": [["license", "eq", "N/A (Partner Infrastructure)"]],
+      "group": "potentialUseCases",
+      "groupPrefix": "UC",
+      "agg": "listPerGroup"
+    }
+  },
+  {
+    "id": "DR21",
+    "category": "group-by",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which sector has the most partner infrastructures?",
+    "groundTruth": "Energy (4)",
+    "expected": {
+      "type": "argmax",
+      "value": ["Energy"],
+      "count": 4,
+      "groups": {
+        "Digital infrastructure": ["ORO-3GPP16", "ORO-5GLAB", "SAVVY-DEVSRV"],
+        "Energy": ["PPC-EMOB", "PPC-IIOT", "SPS-DEVSECOPS", "UIH-PROSUMER"],
+        "Health": ["TELLU-CARE"],
+        "ICT service management (B2B)": ["AST-DEDISRV"],
+        "Manufacturing": ["IDEKO-CNC", "ITPAERO-CFAA", "ITPAERO-CLUSTER"],
+        "Research": ["AALTO-EDGE5G", "AALTO-LUMI"]
+      }
+    },
+    "spec": {
+      "where": [["license", "eq", "N/A (Partner Infrastructure)"]],
+      "group": "sector",
+      "agg": "argmaxCount"
+    }
+  },
+  {
+    "id": "DR22",
+    "category": "multi-constraint",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which Montimage services in the Monitor category have a current TRL of at least 7?",
+    "groundTruth": "MMT-PROBE",
+    "expected": {
+      "type": "set",
+      "value": ["MMT-PROBE"]
+    },
+    "spec": {
+      "where": [
+        ["provider", "eq", "Montimage (MTI)"],
+        ["category", "eq", "Monitor"],
+        ["trlCurrent", "gte", 7]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR23",
+    "category": "multi-constraint",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which partner infrastructures are in the Manufacturing sector and are hardware?",
+    "groundTruth": "ITPAERO-CFAA, ITPAERO-CLUSTER",
+    "expected": {
+      "type": "set",
+      "value": ["ITPAERO-CFAA", "ITPAERO-CLUSTER"]
+    },
+    "spec": {
+      "where": [
+        ["license", "eq", "N/A (Partner Infrastructure)"],
+        ["sector", "eq", "Manufacturing"],
+        ["type", "eq", "Hardware"]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR24",
+    "category": "multi-constraint",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which Dev Services tools from Tecnalia have a current TRL of 4?",
+    "groundTruth": "SECASSURE4AI, SECINTERP",
+    "expected": {
+      "type": "set",
+      "value": ["SECASSURE4AI", "SECINTERP"]
+    },
+    "spec": {
+      "where": [
+        ["category", "eq", "Dev Services"],
+        ["provider", "eq", "Tecnalia (TEC)"],
+        ["trlCurrent", "eq", 4]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR25",
+    "category": "multi-constraint",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which 5G testbeds are provided by Orange Romania?",
+    "groundTruth": "ORO-3GPP16, ORO-5GLAB",
+    "expected": {
+      "type": "set",
+      "value": ["ORO-3GPP16", "ORO-5GLAB"]
+    },
+    "spec": {
+      "where": [
+        ["category", "eq", "5G Testbeds"],
+        ["provider", "eq", "ORO (Orange Romania)"]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR26",
+    "category": "multi-constraint",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which Montimage services in the Target category have a current TRL of 6?",
+    "groundTruth": "CI-SIM, HTTP-SIM",
+    "expected": {
+      "type": "set",
+      "value": ["CI-SIM", "HTTP-SIM"]
+    },
+    "spec": {
+      "where": [
+        ["provider", "eq", "Montimage (MTI)"],
+        ["category", "eq", "Target"],
+        ["trlCurrent", "eq", 6]
+      ],
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR27",
+    "category": "scenario-join",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which services in the 'CI attack → MMT detection → AI4SOAR block' scenario are not software-only web tools?",
+    "groundTruth": "KAFKA",
+    "expected": {
+      "type": "set",
+      "value": ["KAFKA"]
+    },
+    "spec": {
+      "scenario": "CI attack → MMT detection → AI4SOAR block",
+      "where": [["type", "eq", "Software", true]],
+      "agg": "list",
+      "or_not_web": true
+    }
+  },
+  {
+    "id": "DR28",
+    "category": "scenario-join",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which providers supply the services used in the attack-detect-respond scenario?",
+    "groundTruth": "Apache Software Foundation: KAFKA; Montimage (MTI): AI4SOAR, CI-SIM, MAG, SECANOD",
+    "expected": {
+      "type": "groups",
+      "value": {
+        "Apache Software Foundation": ["KAFKA"],
+        "Montimage (MTI)": ["AI4SOAR", "CI-SIM", "MAG", "SECANOD"]
+      }
+    },
+    "spec": {
+      "scenario": "CI attack → MMT detection → AI4SOAR block",
+      "where": [],
+      "group": "provider",
+      "agg": "listPerGroup"
+    }
+  },
+  {
+    "id": "DR29",
+    "category": "scenario-join",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "What is the lowest current TRL among the services of the attack-detect-respond scenario?",
+    "groundTruth": "5 (AI4SOAR)",
+    "expected": {
+      "type": "extremum",
+      "value": 5,
+      "services": ["AI4SOAR"]
+    },
+    "spec": {
+      "scenario": "CI attack → MMT detection → AI4SOAR block",
+      "where": [],
+      "agg": "min:trlCurrent"
+    }
+  },
+  {
+    "id": "DR30",
+    "category": "scenario-join",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which services in the Target category are not used in the attack-detect-respond scenario?",
+    "groundTruth": "HTTP-SIM",
+    "expected": {
+      "type": "set",
+      "value": ["HTTP-SIM"]
+    },
+    "spec": {
+      "where": [["category", "eq", "Target"]],
+      "notInScenario": "CI attack → MMT detection → AI4SOAR block",
+      "agg": "list"
+    }
+  },
+  {
+    "id": "DR31",
+    "category": "lookup-control",
+    "expectedIntent": "service",
+    "expectedRoute": "lookup",
+    "question": "Who provides SECSAC?",
+    "groundTruth": "Tecnalia (TEC)",
+    "expected": {
+      "type": "value",
+      "value": "Tecnalia (TEC)"
+    },
+    "spec": {
+      "service": "SECSAC",
+      "field": "provider"
+    }
+  },
+  {
+    "id": "DR32",
+    "category": "lookup-control",
+    "expectedIntent": "service",
+    "expectedRoute": "lookup",
+    "question": "What is the current TRL of MMT-PROBE?",
+    "groundTruth": "7",
+    "expected": {
+      "type": "value",
+      "value": 7
+    },
+    "spec": {
+      "service": "MMT-PROBE",
+      "field": "trlCurrent"
+    }
+  },
+  {
+    "id": "DR33",
+    "category": "lookup-control",
+    "expectedIntent": "service",
+    "expectedRoute": "lookup",
+    "question": "Which category is TELLU-CARE in?",
+    "groundTruth": "Healthcare IoT Platforms",
+    "expected": {
+      "type": "value",
+      "value": "Healthcare IoT Platforms"
+    },
+    "spec": {
+      "service": "TELLU-CARE",
+      "field": "category"
+    }
+  },
+  {
+    "id": "DR34",
+    "category": "lookup-control",
+    "expectedIntent": "service",
+    "expectedRoute": "lookup",
+    "question": "Is ITPAERO-CFAA a software or a hardware resource?",
+    "groundTruth": "Hardware",
+    "expected": {
+      "type": "value",
+      "value": "Hardware"
+    },
+    "spec": {
+      "service": "ITPAERO-CFAA",
+      "field": "type"
+    }
+  },
+  {
+    "id": "DR35",
+    "category": "lookup-control",
+    "expectedIntent": "service",
+    "expectedRoute": "lookup",
+    "question": "Which use case does TELLU-CARE support?",
+    "groundTruth": "UC4 - Healthcare (eHealth SaaS)",
+    "expected": {
+      "type": "value",
+      "value": ["UC4 - Healthcare (eHealth SaaS)"]
+    },
+    "spec": {
+      "service": "TELLU-CARE",
+      "field": "potentialUseCases"
+    }
+  },
+  {
+    "id": "DR36",
+    "category": "lookup-control",
+    "expectedIntent": "service",
+    "expectedRoute": "lookup",
+    "question": "Which sector is AST-DEDISRV in?",
+    "groundTruth": "ICT service management (B2B)",
+    "expected": {
+      "type": "value",
+      "value": "ICT service management (B2B)"
+    },
+    "spec": {
+      "service": "AST-DEDISRV",
+      "field": "sector"
+    }
+  }
+]
