@@ -8,11 +8,38 @@ import {
   EMPTY_ANSWER_FALLBACK,
   buildRagContextPrompt,
 } from './prompts.js';
+import { env } from '../config/env.js';
+import { routeQuery } from './query-router.js';
+import {
+  executeQuery,
+  formatStructuredResult,
+  loadCatalogSafely,
+  type CatalogService,
+} from './structured-retriever.js';
 import type { ChatMessage } from './types.js';
 
 export interface ChatResult {
   conversationId: string;
   sources: IConversationSource[];
+  /** Which retrieval branch produced the context (evaluation diagnostics). */
+  retrieval?: RetrievalDiagnostics;
+}
+
+/** The retrieval strategies: today's vector search, the structured branch, or both. */
+export type RetrievalMode = 'vector' | 'structured' | 'auto';
+
+export interface RetrievalDiagnostics {
+  mode: RetrievalMode;
+  /** Which branch produced the context. */
+  route: 'none' | 'vector' | 'structured' | 'fallback';
+  /** The router's decision, when the router ran. */
+  routerKind?: 'lookup' | 'structured' | 'invalid';
+  /** Why the structured branch was not used. */
+  fallbackReason?: string;
+  /** The structured query that was executed. */
+  query?: unknown;
+  /** True when the structured query matched no service. */
+  emptyResult?: boolean;
 }
 
 export interface ChatOptions {
@@ -28,6 +55,20 @@ export interface ChatOptions {
   //                          the boss-agent prompt; reproduces the pre-fix
   //                          behaviour used as the ablation baseline.
   injectionScheme?: 'pre-user' | 'static';
+  // Retrieval strategy for this request. Defaults to RAG_RETRIEVAL_MODE
+  // ('vector' — today's behaviour). Evaluation servers may override it per
+  // request (gated by AGENT_EVAL_OPTIONS in the route).
+  retrievalMode?: RetrievalMode;
+}
+
+/** Sources for a structured hit: the query matched it exactly. */
+function structuredSources(services: CatalogService[]): IConversationSource[] {
+  return services.map((service) => ({
+    serviceId: service.id,
+    shortName: service.shortName,
+    title: service.title,
+    score: 1,
+  }));
 }
 
 export class AgentService {
@@ -65,11 +106,32 @@ export class AgentService {
 
     const retriever = getRAGRetriever();
     let retrieved: Awaited<ReturnType<typeof retriever.retrieveSimilar>> = [];
+    let sources: IConversationSource[] = [];
+    let ragContext = '';
+    const diagnostics: RetrievalDiagnostics = {
+      mode: options.retrievalMode ?? env.RAG_RETRIEVAL_MODE,
+      route: 'none',
+    };
     if (useRag) {
       try {
         const isServiceQuery = await getIntentClassifier().isServiceQuery(trimmedMessage);
         if (isServiceQuery) {
-          retrieved = await retriever.retrieveSimilar(trimmedMessage, 4);
+          if (diagnostics.mode === 'vector') {
+            retrieved = await retriever.retrieveSimilar(trimmedMessage, 4);
+            diagnostics.route = 'vector';
+          } else {
+            const structured = await this.retrieveStructured(trimmedMessage, diagnostics);
+            if (structured) {
+              ragContext = structured.context;
+              sources = structured.sources;
+              diagnostics.route = 'structured';
+            } else {
+              // Fallback: invalid query, execution error or an empty result —
+              // the vector branch answers instead (logged for the evaluation).
+              retrieved = await retriever.retrieveSimilar(trimmedMessage, 4);
+              diagnostics.route = 'fallback';
+            }
+          }
         }
       } catch (error) {
         logger.warn('RAG retrieval failed; continuing with chat-only mode', {
@@ -77,7 +139,17 @@ export class AgentService {
         });
       }
     }
-    const ragContext = retriever.formatContextForPrompt(retrieved);
+    if (!ragContext) {
+      ragContext = retriever.formatContextForPrompt(retrieved);
+    }
+    if (sources.length === 0) {
+      sources = retrieved.map((item) => ({
+        serviceId: item.serviceId,
+        shortName: item.shortName,
+        title: item.title,
+        score: item.score,
+      }));
+    }
 
     const historyAfterUserMessage = await this.conversationManager.getHistory(
       activeConversationId,
@@ -135,19 +207,65 @@ export class AgentService {
       response = EMPTY_ANSWER_FALLBACK;
       onToken?.(response);
     }
-    const sources: IConversationSource[] = retrieved.map((item) => ({
-      serviceId: item.serviceId,
-      shortName: item.shortName,
-      title: item.title,
-      score: item.score,
-    }));
-
     await this.conversationManager.addMessage(activeConversationId, {
       role: 'assistant',
       content: response,
       sources,
     });
 
-    return { conversationId: activeConversationId, sources };
+    return { conversationId: activeConversationId, sources, retrieval: diagnostics };
+  }
+
+  /**
+   * Run the structured branch: route the question, execute the query over the
+   * catalog and format the result for the prompt.
+   *
+   * Returns null when the structured branch cannot answer — the caller then
+   * falls back to the vector branch. The reason is recorded in `diagnostics`.
+   */
+  private async retrieveStructured(
+    message: string,
+    diagnostics: RetrievalDiagnostics
+  ): Promise<{ context: string; sources: IConversationSource[] } | null> {
+    const catalog = await loadCatalogSafely();
+    if (!catalog) {
+      diagnostics.fallbackReason = 'the catalog could not be loaded';
+      return null;
+    }
+
+    const outcome = await routeQuery(message, catalog, {
+      forceStructured: diagnostics.mode === 'structured',
+    });
+
+    if (outcome.kind === 'lookup') {
+      diagnostics.routerKind = 'lookup';
+      return null;
+    }
+    if (outcome.kind === 'invalid' || !outcome.query) {
+      diagnostics.routerKind = 'invalid';
+      diagnostics.fallbackReason = outcome.reason ?? 'the query could not be built';
+      return null;
+    }
+
+    diagnostics.routerKind = 'structured';
+    diagnostics.query = outcome.query;
+
+    const result = executeQuery(outcome.query, catalog.services, catalog.scenarios);
+    const aggregate = outcome.query.aggregate?.op ?? 'list';
+
+    if (result.matchCount === 0) {
+      diagnostics.emptyResult = true;
+      // A list or count over an empty set has a well-defined answer ("none"
+      // / 0); a min/max does not, so that case falls back to the vector branch.
+      if (aggregate === 'min' || aggregate === 'max') {
+        diagnostics.fallbackReason = 'the query matched no service';
+        return null;
+      }
+    }
+
+    return {
+      context: formatStructuredResult(result, outcome.query),
+      sources: structuredSources(result.services),
+    };
   }
 }

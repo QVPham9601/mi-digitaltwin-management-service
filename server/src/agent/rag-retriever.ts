@@ -4,6 +4,7 @@ import { Category } from '../models/Category.js';
 import { Sector } from '../models/Sector.js';
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
+import { invalidateCatalog } from './structured-retriever.js';
 import type { LLMGateway } from './llm-gateway.js';
 import type { VectorSearchResult, VectorStore } from './vector-store.js';
 
@@ -375,6 +376,9 @@ export class RAGRetriever {
 
   async reindexAll(): Promise<{ indexed: number; duration: number }> {
     const startedAt = Date.now();
+    // The structured branch keeps its own in-memory catalog — drop it so the
+    // next query sees the same (fresh) catalog as the index.
+    invalidateCatalog();
     // Only index active services — deprecated ones (retired by a catalog
     // refresh, e.g. old-version tools like MONT-MMT) must not be retrievable.
     const services = (await Service.find({
@@ -469,9 +473,9 @@ export class RAGRetriever {
   }
 
   async indexServiceById(serviceId: string): Promise<void> {
+    invalidateCatalog();
     const service = (await Service.findById(serviceId).lean()) as unknown as
-      | (ServiceDoc & { deprecated?: boolean })
-      | null;
+      (ServiceDoc & { deprecated?: boolean }) | null;
     if (!service) {
       return;
     }

@@ -15,6 +15,7 @@ import {
 import { buildCaseInsensitiveFilter, buildSearchOrFilter } from '../utils/search.js';
 import { REPOSITORY_TABLES } from '../lib/constants.js';
 import { getRAGRetriever } from '../agent/index.js';
+import { invalidateCatalog } from '../agent/structured-retriever.js';
 
 const router: RouterType = Router();
 
@@ -24,6 +25,9 @@ const SEARCH_FIELDS = ['shortName', 'title', 'description'] as const;
 // Re-index a service in the Boss Agent's RAG vector store after catalog writes.
 // Best-effort: never blocks or fails the service API if indexing errors.
 function triggerAsyncIndex(serviceId: string): void {
+  // The structured branch keeps its own in-memory catalog — drop it so the next
+  // query sees the service that was just written.
+  invalidateCatalog();
   getRAGRetriever()
     .indexServiceById(serviceId)
     .catch(() => {
@@ -35,6 +39,7 @@ function triggerAsyncIndex(serviceId: string): void {
 // the Boss Agent can no longer retrieve a service that no longer exists.
 // Best-effort, same as triggerAsyncIndex.
 function triggerAsyncDeindex(serviceId: string): void {
+  invalidateCatalog();
   getRAGRetriever()
     .removeServiceById(serviceId)
     .catch(() => {

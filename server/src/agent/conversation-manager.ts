@@ -1,5 +1,6 @@
 import { Conversation } from '../models/Conversation.js';
 import type { IConversationSource } from '../models/Conversation.js';
+import { env } from '../config/env.js';
 import { getLLMGateway } from './index.js';
 import { logger } from '../utils/logger.js';
 
@@ -85,6 +86,11 @@ export class ConversationManager {
 
   async generateTitle(firstMessage: string): Promise<string> {
     const fallback = normalizeTitle(firstMessage);
+    // Evaluation runs disable the title call: it is awaited before retrieval,
+    // so it would double the LLM requests and inflate the measured latency.
+    if (!env.AGENT_LLM_TITLES) {
+      return fallback;
+    }
 
     try {
       const response = await getLLMGateway().chat([

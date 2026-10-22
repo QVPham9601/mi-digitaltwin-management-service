@@ -63,6 +63,26 @@ const envSchema = z.object({
     .default('true')
     .transform((v) => v === 'true' || v === '1'),
   MONITOR_INCIDENT_GAP_MS: z.string().default('30000').transform(Number),
+  // Boss Agent retrieval strategy.
+  //   'vector'    (default) — today's behaviour: cosine top-k = 4.
+  //   'structured'          — always answer with a structured query over the
+  //                           catalog (evaluation condition B).
+  //   'auto'                 — route between the two branches.
+  RAG_RETRIEVAL_MODE: z.enum(['vector', 'structured', 'auto']).default('vector'),
+  // Evaluation-only chat options (e.g. per-request retrievalMode). Off by
+  // default: a normal server must never let a client switch the retrieval
+  // strategy.
+  AGENT_EVAL_OPTIONS: z
+    .enum(['true', 'false', '1', '0'])
+    .default('false')
+    .transform((v) => v === 'true' || v === '1'),
+  // Generate conversation titles with the chat LLM (default). Evaluation runs
+  // set this to false: the title call is awaited before retrieval, so it would
+  // double the LLM requests and inflate measured latency.
+  AGENT_LLM_TITLES: z
+    .enum(['true', 'false', '1', '0'])
+    .default('true')
+    .transform((v) => v === 'true' || v === '1'),
   /** Serve Prometheus metrics at `GET /metrics` (default on). */
   METRICS_ENABLED: z
     .enum(['true', 'false', '1', '0'])

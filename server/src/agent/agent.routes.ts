@@ -123,12 +123,16 @@ router.post('/chat', validateBody(chatRequestSchema), async (req, res, next) => 
       throw new AppError('Unauthorized', 401);
     }
 
-    const { message, conversationId, useRag, injectionScheme } = req.body as {
+    const { message, conversationId, useRag, injectionScheme, retrievalMode } = req.body as {
       message: string;
       conversationId?: string;
       useRag?: boolean;
       injectionScheme?: 'pre-user' | 'static';
+      retrievalMode?: 'vector' | 'structured' | 'auto';
     };
+    if (retrievalMode && !env.AGENT_EVAL_OPTIONS) {
+      throw new AppError('retrievalMode is only available on evaluation servers', 403);
+    }
 
     let activeConversationId = conversationId;
     if (activeConversationId) {
@@ -164,9 +168,12 @@ router.post('/chat', validateBody(chatRequestSchema), async (req, res, next) => 
       (token) => {
         writeEvent('token', { content: token });
       },
-      { useRag, injectionScheme }
+      { useRag, injectionScheme, retrievalMode }
     );
 
+    if (result.retrieval) {
+      writeEvent('retrieval', result.retrieval);
+    }
     writeEvent('sources', result.sources);
     writeEvent('done', { ok: true });
     res.end();
