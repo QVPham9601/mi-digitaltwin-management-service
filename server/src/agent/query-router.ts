@@ -99,12 +99,13 @@ const MAPPING_RULES = [
   '- "how many" -> aggregate op "count"; "which/who/what" over a set -> "list".',
   '- "lowest/highest/least/most" -> "min"/"max" with the numeric field (trl.current / trl.expected).',
   '- "each", "per", "for every" -> groupBy the field named in the question.',
-  '- "for each use case UC1 to UC5" -> groupBy "potentialUseCases" and groupByPrefix "UC".',
-  '- "services in the <scenario>" -> "scenario" = the exact scenario title from the list.',
-  '- "not used in the <scenario>" -> "notInScenario" = the exact scenario title from the list.',
+  '- To keep only some group keys (e.g. keys that share a prefix), set groupByPrefix.',
+  '- Which services a deployment scenario contains is answered ONLY with "scenario" (or',
+  '  "notInScenario" for services not in it): pick the scenario title from the list that best',
+  "  matches the user's wording, even if the words differ. potentialUseCases are use-case labels,",
+  '  never scenario membership.',
   '- An "or" condition -> "whereAny": a list of AND-groups, at least one of which must hold.',
-  '  Example: "not software-only web tools" is NOT(type = Software AND uiType = web), i.e.',
-  '  whereAny: [[{field: "type", op: "ne", value: "Software"}], [{field: "uiType", op: "ne", value: "web"}]].',
+  '  A negated conjunction NOT(A AND B) is the "or" of the negations: whereAny: [[NOT A], [NOT B]].',
 ].join('\n');
 
 export function buildRouterMessages(
@@ -190,6 +191,8 @@ function resolvePredicate(
   const field = predicate.field;
   const numeric = NUMERIC_FIELDS.includes(field);
   const comparison = ['lt', 'lte', 'gt', 'gte'].includes(predicate.op);
+  // Numeric fields accept the comparisons plus exact (in)equality ("a TRL of 4").
+  const numericOp = comparison || ['eq', 'ne'].includes(predicate.op);
 
   if (numeric) {
     const raw = Array.isArray(predicate.value) ? predicate.value[0] : predicate.value;
@@ -197,7 +200,7 @@ function resolvePredicate(
     if (!Number.isFinite(value)) {
       return { ok: false, reason: `field ${field} needs a numeric value` };
     }
-    if (!comparison) {
+    if (!numericOp) {
       return { ok: false, reason: `operator ${predicate.op} is not valid on ${field}` };
     }
     return { ok: true, predicate: { ...predicate, value } };

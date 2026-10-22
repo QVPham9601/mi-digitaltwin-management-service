@@ -73,6 +73,19 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 
 describe('routeQuery', () => {
+  it('accepts exact equality on a numeric field ("a TRL of 4")', async () => {
+    const outcome = await routeQuery('Which Tecnalia services have a TRL of 4?', CATALOG, {
+      chatJson: stubChatJson({
+        kind: 'structured',
+        where: [{ field: 'trl.current', op: 'eq', value: '4' }],
+        aggregate: { op: 'list' },
+      }),
+    });
+
+    expect(outcome.kind).toBe('structured');
+    expect(outcome.query?.where).toEqual([{ field: 'trl.current', op: 'eq', value: 4 }]);
+  });
+
   it('returns a structured outcome with resolved values', async () => {
     const outcome = await routeQuery('Which Tecnalia services have a low TRL?', CATALOG, {
       chatJson: stubChatJson({

@@ -592,7 +592,10 @@ export function executeQuery(
 
   const result: StructuredResult = { services: rows, matchCount: rows.length };
 
-  if (query.groupBy) {
+  // min / max are computed over all matching rows; a groupBy next to them (often
+  // "groupBy: shortName" from the model) would turn every group into a count of 1.
+  const extremum = query.aggregate?.op === 'min' || query.aggregate?.op === 'max';
+  if (query.groupBy && !extremum) {
     const groups = new Map<string, string[]>();
     for (const service of rows) {
       for (const key of groupKeysFor(service, query.groupBy)) {
@@ -682,7 +685,7 @@ export function describeQuery(query: StructuredQuery): string {
       `any of (${whereAny.map((group) => group.map(formatPredicate).join(' AND ')).join(' | ')})`
     );
   }
-  if (query.groupBy) {
+  if (query.groupBy && query.aggregate?.op !== 'min' && query.aggregate?.op !== 'max') {
     const prefix = query.groupByPrefix ? ` (keys starting with "${query.groupByPrefix}")` : '';
     parts.push(`grouped by ${query.groupBy}${prefix}`);
   }

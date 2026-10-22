@@ -264,6 +264,20 @@ describe('structured query operators', () => {
 });
 
 describe('aggregates', () => {
+  it('computes min over all matching rows even when a groupBy is set', () => {
+    const result = executeQuery(
+      query({
+        where: [{ field: 'provider', op: 'eq', value: 'Montimage (MTI)' }],
+        groupBy: 'shortName',
+        aggregate: { op: 'min', field: 'trl.current' },
+      }),
+      SERVICES,
+      SCENARIOS
+    );
+    expect(result.value).toBe(4);
+    expect(result.valueServices).toEqual(['SECAISOAR']);
+  });
+
   it('counts the matching services', () => {
     const result = executeQuery(
       query({
