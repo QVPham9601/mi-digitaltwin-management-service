@@ -76,7 +76,10 @@ export function formatVocabulary(vocabulary: CatalogVocabulary): string {
   add('licenses', vocabulary.licenses);
   add('standards', vocabulary.standards);
   add('use cases', vocabulary.useCases);
-  add('scenarios', vocabulary.scenarios);
+  if (vocabulary.scenarioDetails.length > 0) {
+    lines.push('scenarios (title — other names — services):');
+    lines.push(...vocabulary.scenarioDetails.map((line) => `- ${line}`));
+  }
   return lines.join('\n');
 }
 
@@ -102,8 +105,8 @@ const MAPPING_RULES = [
   '- To keep only some group keys (e.g. keys that share a prefix), set groupByPrefix.',
   '- Which services a deployment scenario contains is answered ONLY with "scenario" (or',
   '  "notInScenario" for services not in it): pick the scenario title from the list that best',
-  "  matches the user's wording, even if the words differ. potentialUseCases are use-case labels,",
-  '  never scenario membership.',
+  "  matches the user's wording or one of its other names. Membership is the scenario's services",
+  '  list, not use-case text: potentialUseCases never decide scenario membership.',
   '- An "or" condition -> "whereAny": a list of AND-groups, at least one of which must hold.',
   '  A negated conjunction NOT(A AND B) is the "or" of the negations: whereAny: [[NOT A], [NOT B]].',
 ].join('\n');
@@ -230,6 +233,22 @@ function resolvePredicate(
 }
 
 /**
+ * The scenario a potentialUseCases predicate names ("... attack→detect→respond
+ * scenario"), or null. Use-case text never decides scenario membership, even
+ * when the text is a real use case.
+ */
+function scenarioFromUseCase(predicate: Predicate, catalog: Catalog): string | null {
+  if (predicate.field !== 'potentialUseCases' || typeof predicate.value !== 'string') {
+    return null;
+  }
+  if (!/\bscenario\b/i.test(predicate.value)) {
+    return null;
+  }
+  const resolution = resolveScenarioTitle(predicate.value, catalog);
+  return resolution.ok ? resolution.title : null;
+}
+
+/**
  * Resolve the model's values against the catalog's real vocabulary.
  * Returns a cleaned query, or the reason it could not be resolved.
  */
@@ -239,8 +258,21 @@ export function resolveQuery(
 ): { ok: true; query: StructuredQuery } | { ok: false; reason: string } {
   const vocabulary = buildVocabulary(catalog);
   const where: StructuredQuery['where'] = [];
+  let scenario = output.scenario;
+  let notInScenario = output.notInScenario;
 
   for (const predicate of output.where ?? []) {
+    // A scenario named as a use case ("... attack→detect→respond scenario") is a
+    // scenario filter: membership comes from the scenario, not from use-case text.
+    const asScenario = scenarioFromUseCase(predicate, catalog);
+    if (asScenario) {
+      if (predicate.not) {
+        notInScenario ??= asScenario;
+      } else {
+        scenario ??= asScenario;
+      }
+      continue;
+    }
     const resolved = resolvePredicate(predicate, vocabulary);
     if (!resolved.ok) {
       return { ok: false, reason: resolved.reason };
@@ -263,7 +295,6 @@ export function resolveQuery(
     }
   }
 
-  let scenario = output.scenario;
   if (scenario) {
     const resolution = resolveScenarioTitle(scenario, catalog);
     if (!resolution.ok) {
@@ -272,7 +303,6 @@ export function resolveQuery(
     scenario = resolution.title;
   }
 
-  let notInScenario = output.notInScenario;
   if (notInScenario) {
     const resolution = resolveScenarioTitle(notInScenario, catalog);
     if (!resolution.ok) {

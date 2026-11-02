@@ -107,12 +107,19 @@ export interface CatalogService {
   repositoryTable: string;
   standards: string[];
   license: string | null;
+  description: string | null;
 }
 
 export interface CatalogScenario {
   title: string;
+  description: string | null;
   /** shortNames of the services in the scenario's topology. */
   serviceShortNames: string[];
+  /**
+   * Other names the catalog uses for this scenario: phrases such as "the
+   * Montimage attack→detect→respond scenario" found in its services' use cases.
+   */
+  aliases: string[];
 }
 
 export interface Catalog {
@@ -144,7 +151,7 @@ export async function getCatalog(force = false): Promise<Catalog> {
       Service.find({ deprecated: { $ne: true } }).lean(),
       Category.find({}, { name: 1 }).lean(),
       Sector.find({}, { name: 1 }).lean(),
-      Scenario.find({}, { title: 1, topology: 1 }).lean(),
+      Scenario.find({}, { title: 1, description: 1, topology: 1 }).lean(),
     ]);
 
     const categoryNames = new Map(categories.map((c) => [String(c._id), c.name]));
@@ -167,13 +174,24 @@ export async function getCatalog(force = false): Promise<Catalog> {
         repositoryTable: service.repositoryTable,
         standards: service.standards ?? [],
         license: service.license ?? null,
+        description: service.description ?? null,
       })),
-      scenarios: scenarios.map((scenario) => ({
-        title: scenario.title,
-        serviceShortNames: (scenario.topology?.nodes ?? [])
+      scenarios: scenarios.map((scenario) => {
+        const serviceShortNames = (scenario.topology?.nodes ?? [])
           .map((node) => shortNameById.get(String(node.serviceId ?? node.data?.serviceId ?? '')))
-          .filter((name): name is string => Boolean(name)),
-      })),
+          .filter((name): name is string => Boolean(name));
+        const members = new Set(serviceShortNames);
+        return {
+          title: scenario.title,
+          description: scenario.description ?? null,
+          serviceShortNames,
+          aliases: scenarioAliases(
+            services
+              .filter((s) => members.has(s.shortName))
+              .flatMap((s) => s.potentialUseCases ?? [])
+          ),
+        };
+      }),
       loadedAt: Date.now(),
     };
 
@@ -189,6 +207,23 @@ export async function getCatalog(force = false): Promise<Catalog> {
 }
 
 /** Drop the cached catalog — called after a catalog write or an index refresh. */
+/**
+ * Phrases naming a scenario inside use-case texts ("Target module in the
+ * Montimage attack→detect→respond scenario" → "Montimage attack→detect→respond").
+ */
+export function scenarioAliases(useCases: string[]): string[] {
+  const aliases = new Set<string>();
+  for (const text of useCases) {
+    for (const match of text.matchAll(/((?:[^\s,;.()]+\s+){0,2}[^\s,;.()]+)\s+scenario\b/gi)) {
+      const phrase = match[1].replace(/^(the|a|an)\s+/i, '').trim();
+      if (phrase.length > 0) {
+        aliases.add(phrase);
+      }
+    }
+  }
+  return [...aliases].sort((a, b) => a.localeCompare(b));
+}
+
 export function invalidateCatalog(): void {
   cachedCatalog = null;
   catalogPromise = null;
@@ -209,6 +244,8 @@ export interface CatalogVocabulary {
   standards: string[];
   useCases: string[];
   scenarios: string[];
+  /** One line per scenario: title, other names, member services. */
+  scenarioDetails: string[];
 }
 
 function uniqueSorted(values: Array<string | null | undefined>): string[] {
@@ -231,6 +268,15 @@ export function buildVocabulary(catalog: Catalog): CatalogVocabulary {
     standards: uniqueSorted(catalog.services.flatMap((s) => s.standards)),
     useCases: uniqueSorted(catalog.services.flatMap((s) => s.potentialUseCases)),
     scenarios: uniqueSorted(catalog.scenarios.map((s) => s.title)),
+    scenarioDetails: catalog.scenarios.map((s) =>
+      [
+        `"${s.title}"`,
+        s.aliases.length > 0 ? `also called: ${s.aliases.join('; ')}` : '',
+        s.serviceShortNames.length > 0 ? `services: ${s.serviceShortNames.join(', ')}` : '',
+      ]
+        .filter(Boolean)
+        .join(' — ')
+    ),
   };
 }
 
@@ -379,9 +425,11 @@ export function resolveScenarioTitle(reference: string, catalog: Catalog): Scena
   }
 
   const needle = normalise(reference);
-  const exact = titles.find((title) => normalise(title) === needle);
+  const exact = catalog.scenarios.find(
+    (s) => normalise(s.title) === needle || s.aliases.some((alias) => normalise(alias) === needle)
+  );
   if (exact) {
-    return { ok: true, title: exact };
+    return { ok: true, title: exact.title };
   }
 
   const queryTokens = tokenise(reference).map(stem);
@@ -389,11 +437,15 @@ export function resolveScenarioTitle(reference: string, catalog: Catalog): Scena
     return { ok: false, reason: `scenario "${reference}" could not be resolved` };
   }
 
-  const scored = titles
-    .map((title) => {
-      const titleTokens = new Set(tokenise(title).map(stem));
-      const hits = queryTokens.filter((token) => titleTokens.has(token)).length;
-      return { title, score: hits / queryTokens.length };
+  const scored = catalog.scenarios
+    .map(({ title, aliases }) => {
+      const score = Math.max(
+        ...[title, ...aliases].map((name) => {
+          const nameTokens = new Set(tokenise(name).map(stem));
+          return queryTokens.filter((token) => nameTokens.has(token)).length / queryTokens.length;
+        })
+      );
+      return { title, score };
     })
     .sort((a, b) => b.score - a.score);
 
@@ -695,7 +747,15 @@ export function describeQuery(query: StructuredQuery): string {
   return parts.join('; ');
 }
 
-function serviceDetailLines(service: CatalogService, query: StructuredQuery): string {
+/** Results up to this size also carry each service's description (for comparisons). */
+const DESCRIBE_UP_TO = 8;
+const DESCRIPTION_CHARS = 300;
+
+function serviceDetailLines(
+  service: CatalogService,
+  query: StructuredQuery,
+  withDescription: boolean
+): string {
   const used = new Set((query.where ?? []).map((predicate) => predicate.field));
   const lines: string[] = [];
   lines.push(`provider: ${service.provider}`);
@@ -723,6 +783,12 @@ function serviceDetailLines(service: CatalogService, query: StructuredQuery): st
   }
   if (used.has('potentialUseCases') && service.potentialUseCases.length > 0) {
     lines.push(`potentialUseCases: ${service.potentialUseCases.join(' | ')}`);
+  }
+  if (withDescription && service.description) {
+    const text = service.description.replace(/\s+/g, ' ').trim();
+    lines.push(
+      `description: ${text.length > DESCRIPTION_CHARS ? `${text.slice(0, DESCRIPTION_CHARS)}…` : text}`
+    );
   }
   return lines.join(' | ');
 }
@@ -775,7 +841,7 @@ export function formatStructuredResult(result: StructuredResult, query: Structur
     lines.push('');
     result.services.forEach((service, index) => {
       lines.push(`[${index + 1}] ${service.shortName} - ${service.title}`);
-      lines.push(serviceDetailLines(service, query));
+      lines.push(serviceDetailLines(service, query, result.services.length <= DESCRIBE_UP_TO));
     });
   }
 

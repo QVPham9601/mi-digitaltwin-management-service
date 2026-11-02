@@ -21,6 +21,7 @@ function service(shortName: string, overrides: Partial<CatalogService> = {}): Ca
     repositoryTable: 'INTACT_TOOLBOX',
     standards: [],
     license: 'TBD',
+    description: null,
     ...overrides,
   };
 }
@@ -42,10 +43,12 @@ const CATALOG: Catalog = {
     }),
   ],
   scenarios: [
-    { title: 'DDoS attack', serviceShortNames: [] },
+    { title: 'DDoS attack', description: null, serviceShortNames: [], aliases: [] },
     {
       title: 'CI attack → MMT detection → AI4SOAR block',
+      description: null,
       serviceShortNames: ['MAG', 'CI-SIM', 'SECANOD', 'KAFKA', 'AI4SOAR'],
+      aliases: ['Montimage attack→detect→respond'],
     },
   ],
   loadedAt: Date.now(),
@@ -213,6 +216,26 @@ describe('routeQuery', () => {
 });
 
 describe('resolveQuery', () => {
+  it('turns a scenario named as a use case into a scenario filter', () => {
+    const resolved = resolveQuery(
+      {
+        kind: 'structured',
+        where: [
+          {
+            field: 'potentialUseCases',
+            op: 'contains',
+            value: 'Montimage attack→detect→respond scenario',
+          },
+        ],
+      },
+      CATALOG
+    );
+    expect(resolved.ok && resolved.query.scenario).toBe(
+      'CI attack → MMT detection → AI4SOAR block'
+    );
+    expect(resolved.ok && resolved.query.where).toEqual([]);
+  });
+
   it('throws no error on an empty structured output', () => {
     const resolved = resolveQuery({ kind: 'structured', where: [] }, CATALOG);
     expect(resolved.ok).toBe(true);

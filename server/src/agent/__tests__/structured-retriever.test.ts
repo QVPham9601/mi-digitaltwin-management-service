@@ -6,6 +6,7 @@ import {
   executeQuery,
   formatStructuredResult,
   resolveScenarioTitle,
+  scenarioAliases,
   resolveVocabularyValue,
   type Catalog,
   type CatalogScenario,
@@ -33,6 +34,7 @@ function makeService(overrides: Partial<CatalogService> & { shortName: string })
     repositoryTable: 'INTACT_TOOLBOX',
     standards: [],
     license: 'TBD',
+    description: null,
     ...overrides,
   };
 }
@@ -113,10 +115,12 @@ const SERVICES: CatalogService[] = [
 ];
 
 const SCENARIOS: CatalogScenario[] = [
-  { title: 'DDoS attack', serviceShortNames: [] },
+  { title: 'DDoS attack', description: null, serviceShortNames: [], aliases: [] },
   {
     title: 'CI attack → MMT detection → AI4SOAR block',
+    description: null,
     serviceShortNames: ['MAG', 'CI-SIM', 'SECANOD', 'KAFKA'],
+    aliases: ['Montimage attack→detect→respond'],
   },
 ];
 
@@ -413,6 +417,23 @@ describe('scenario join', () => {
     });
   });
 
+  it('resolves a scenario by the name the catalog uses for it', () => {
+    const resolution = resolveScenarioTitle(
+      'Alert bus in the Montimage attack→detect→respond scenario',
+      CATALOG
+    );
+    expect(resolution).toEqual({ ok: true, title: 'CI attack → MMT detection → AI4SOAR block' });
+  });
+
+  it('extracts scenario names from use-case texts', () => {
+    expect(
+      scenarioAliases([
+        'Target module in the Montimage attack→detect→respond scenario',
+        'UC3 - Renewable Prosumer Energy',
+      ])
+    ).toEqual(['Montimage attack→detect→respond']);
+  });
+
   it('rejects an unresolvable scenario name', () => {
     const resolution = resolveScenarioTitle('the flying saucer scenario', CATALOG);
     expect(resolution.ok).toBe(false);
@@ -566,10 +587,13 @@ describe('the executor agrees with the independent Python ground truth', () => {
     repositoryTable: String(service.repositoryTable),
     standards: (service.standards as string[]) ?? [],
     license: (service.license as string | null) ?? null,
+    description: null,
   }));
   const snapshotScenarios: CatalogScenario[] = snapshot.scenarios.map((scenario) => ({
     title: scenario.title,
+    description: null,
     serviceShortNames: scenario.services,
+    aliases: [],
   }));
 
   it.each(
