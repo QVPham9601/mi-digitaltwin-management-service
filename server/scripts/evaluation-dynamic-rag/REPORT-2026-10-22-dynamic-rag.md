@@ -124,10 +124,67 @@ scenario objects) and from what the structured context leaves out (descriptions)
 3. A held-out question set (new phrasing, new operators) to confirm v2.
 4. Re-run the 14B with v2; repeat after the KAFKA / MAG catalog update.
 
+## Addendum 2026-11-02: frontier model (Claude Opus 5.5)
+
+**Question.** Is the baseline's failure structural, i.e. does a frontier model
+with the same 4-entry vector retrieval still fail aggregate questions? And
+what remains of the routed condition's errors with a stronger generator?
+
+**Setup.** Same 36 questions, index, prompts and router; only the chat model
+changes: `claude-opus-5-5`, effort `medium`, no server-side fallback. It is
+used for both the answer and the router's structured query. Conditions A and C,
+3 repetitions (B omitted, since C routes to the same executor). The runner's
+budget guard capped the run at $10. **Actual cost: $4.55** for 216 answers,
+plus $0.08 for a smoke test. Raw: `results/claude-opus-dynamic.jsonl`.
+
+**Grader change.** Scenario titles are now removed before detecting service
+names, because "CI attack → MMT detection → AI4SOAR block" contains AI4SOAR.
+The DGX numbers above are unchanged by this fix.
+
+| Model                    | A — read 4 entries                    | C — routed                                                  |
+| ------------------------ | ------------------------------------- | ----------------------------------------------------------- |
+| qwen3:14b (v1)           | 8/29 (28%)                            | 20/29 (69%)                                                 |
+| Qwen3.6-35B, DGX (v2)    | 18/87 (21%); 24/87 complete           | 72/87 (83%)                                                 |
+| **Claude Opus 5.5 (v2)** | **4/87 strict; 26/87 complete (30%)** | **87/87 after adjudication** (75/87 strict, 87/87 complete) |
+
+- **Strict vs complete.** Opus adds context, such as "the next lowest is
+  AI4SOAR, at TRL 5" or the full table of a scenario's services. The strict
+  grader counts that as naming a wrong service. Under C, the 12 rows that were
+  complete but not strictly correct (9 min/max, 3 DR29) were read by hand: all
+  are correct, so C = 87/87 (95% CI 96–100%). Under A, the complete count
+  (26/87) is an upper bound. Many of those answers explicitly say "in the
+  retrieved context…" and are partial.
+- **Baseline failure is structural.** With 4 retrieved entries, Opus answers
+  no count, min/max, group-by, negation or comparison question (0/45), the same
+  as the 35B. It correctly hedges ("in the retrieved context, Montimage
+  provides 4 services") but cannot know what it was not given.
+- **The routed residue is closed by the stronger model.** Opus resolves the
+  scenario questions (12/12 complete vs 3/12 for the 35B) and the group-by over
+  a list field (DR20). The router picked the right branch 108/108 times, with
+  no fallbacks (the 35B: 102/108). So the remaining 35B errors were partly
+  _model_ errors: linking two names of the same scenario and planning a
+  group-by.
+- **Cost of the frontier model.** Median latency 5.5 s (A) / 6.7 s (C) vs
+  1.5 s / 2.6 s on the DGX. About $0.02 per answer, and catalog data leaves
+  the premises.
+
+**Interpretation.** Grounding in the twin's structure is _necessary_. No model
+size or quality makes the 4-entry baseline answer aggregate questions. Once
+grounded, a frontier model is _better_ than the local 35B on the residue
+(entity linking, query planning): 100% vs 83%. Two consequences:
+
+- the claim is "grounding first, then scale helps on the hard residue", not
+  "scale never matters";
+- it supports a cascade (D2): the local model by default, a larger model only
+  for the steps where the twin shows the local one is wrong.
+
+**Threats.** One frontier model, effort `medium`. Same questions as v2 (not
+held out). A-condition adjudication is not done.
+
 ## Files
 
 - Runner `run-dynamic-eval.mjs`, grader `grade.py`, main-set check `main_check.py`.
-- Raw results in `results/`: `dgx-dynamic.jsonl` / `dgx-main.jsonl` (v1),
+- Raw results in `results/`: `claude-opus-dynamic.jsonl` (Opus, A/C × 3), `claude-smoke.jsonl`; `dgx-dynamic.jsonl` / `dgx-main.jsonl` (v1),
   `dgx-dynamic-v2.jsonl` / `dgx-main-v2.jsonl` (v2), `qwen3-14b-dynamic.jsonl` /
   `qwen3-14b-main.jsonl` (v1).
 - Code: `server/src/agent/structured-retriever.ts`, `query-router.ts`

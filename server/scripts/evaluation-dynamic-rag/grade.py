@@ -20,12 +20,16 @@ HERE = Path(__file__).parent
 QS = {q["id"]: q for q in json.loads((HERE / "questions-dynamic-rag.json").read_text())}
 SNAP = json.loads((HERE / "catalog-snapshot.json").read_text())
 NAMES = sorted({s["shortName"] for s in SNAP["services"]}, key=len, reverse=True)
+# Scenario titles name services ("... AI4SOAR block"); quoting a title is not naming a service.
+TITLES = [t for t in (x.get("title") or x.get("name") for x in SNAP.get("scenarios", [])) if t]
 
 
 def mentioned(text):
     """Catalog services named in the text (case-insensitive: answers often write
     service titles like "secSAC"). The platform name "SecSim" is not the SECSIM service."""
     found = set()
+    for t in TITLES:
+        text = text.replace(t, "")
     for n in NAMES:
         for m in re.finditer(rf"(?<![A-Za-z0-9-]){re.escape(n)}(?![A-Za-z0-9-])", text, re.I):
             if not (n == "SECSIM" and m.group(0) == "SecSim"):
