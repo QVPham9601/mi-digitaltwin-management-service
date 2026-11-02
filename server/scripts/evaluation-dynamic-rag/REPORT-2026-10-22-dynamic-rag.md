@@ -181,6 +181,76 @@ grounded, a frontier model is _better_ than the local 35B on the residue
 **Threats.** One frontier model, effort `medium`. Same questions as v2 (not
 held out). A-condition adjudication is not done.
 
+## Addendum 2026-11-02 (2): v3 fixes, 35B and 14B re-runs
+
+**Changes (v3), all generic: no question text is used.**
+
+1. **Scenario aliases.** Each scenario's other names are taken from the
+   catalog itself: phrases such as "the Montimage attack→detect→respond
+   scenario" in its services' use cases. They are used to resolve scenario
+   references.
+2. **Scenarios in the router vocabulary.** The router sees each scenario as
+   its title, its other names and its member services.
+3. **Repair rule.** A use-case predicate that names a scenario becomes a
+   scenario filter: use-case text never decides membership.
+4. **Descriptions in small results.** Structured results with 8 services or
+   fewer, grouped or not, carry each service's description (up to 300
+   characters).
+
+Conditions B and C were re-run on the DGX (3 repetitions), plus the main set
+under C. The local qwen3:14b was run under C (3 repetitions). Raw results:
+
+- `dgx-dynamic-v3.jsonl` and `dgx-main-v3.jsonl`;
+- `qwen3-14b-dynamic-v3.jsonl`;
+- `dgx-*-v3a.jsonl`: an intermediate run without change 4 for grouped results.
+
+The 14B run used the intermediate code (v3a). Its group-by output is
+therefore names-only, which affects comparison-style answers, not this set's
+grading.
+
+| Model, condition C | v1                 | v2                        | **v3**                                                 |
+| ------------------ | ------------------ | ------------------------- | ------------------------------------------------------ |
+| qwen3:14b (local)  | 20/29 (69%), 1 rep | —                         | **78/87 (90%, CI 81–94%)**, 3 reps                     |
+| Qwen3.6-35B (DGX)  | 66/87 (76%)        | 72/87 (83%)               | **80/87 (92%, CI 84–96%)**, adjudicated (74/87 strict) |
+| Claude Opus 5.5    | —                  | 87/87 (100%), adjudicated | —                                                      |
+
+**By operation, v3:**
+
+- **Scenario join:** 14B 6/12, 35B 8/12, against 3/12 for the 35B in v2.
+- **Negation:** 9/9 for both models.
+- **Group-by:** still 9/12, the list-field case DR20.
+
+**Router and main set.**
+
+- The router picked the right branch 108/108 times for the 35B and 99/108 for
+  the 14B.
+- The 14B's remaining fallbacks are scenario names written as use-case values
+  without the word "scenario" (6), and a service name used as a provider (3).
+  A next repair would resolve those values against scenario titles and aliases
+  directly.
+- **Main set (35B):** the two-service comparison (C5) is now answered in 3/3
+  runs, against "cannot compare" in 2 of 3 for v2. That removes the
+  regression.
+
+**Adjudication (35B).** Six rows were complete but not strictly correct
+(DR15, DR29, DR30). They were read by hand: all are correct, and the extra
+service names come from context or from quoted descriptions.
+
+**Interpretation.**
+
+- Making the twin's own naming explicit (scenario aliases, scenario members)
+  and giving its descriptions raised both local models to about 90%.
+- The 14B with v3 grounding (90%) now does better than the 35B did with v2
+  grounding (83%): again, how the twin is exposed matters more than model
+  size.
+- The remaining gap to the frontier model (92% against 100%) sits in query
+  planning: ignoring the scenario filter, and group-by over a list field.
+
+**Threats.** The v3 changes were designed after error analysis on these
+questions. They contain no question text, but a held-out set is still needed.
+The 14B and 35B ran slightly different code (v3a / v3). One run, three
+repetitions each.
+
 ## Files
 
 - Runner `run-dynamic-eval.mjs`, grader `grade.py`, main-set check `main_check.py`.

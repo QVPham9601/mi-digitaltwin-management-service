@@ -816,6 +816,14 @@ export function formatStructuredResult(result: StructuredResult, query: Structur
     if (query.aggregate?.op === 'count') {
       lines.push(`Total in the largest group: ${result.value}`);
     }
+    // Few services: give their details too, so the answer can describe or compare them.
+    if (result.services.length > 0 && result.services.length <= DESCRIBE_UP_TO) {
+      lines.push('');
+      result.services.forEach((service, index) => {
+        lines.push(`[${index + 1}] ${service.shortName} - ${service.title}`);
+        lines.push(serviceDetailLines(service, query, true));
+      });
+    }
     return lines.join('\n');
   }
 
