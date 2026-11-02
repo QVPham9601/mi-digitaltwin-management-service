@@ -27,6 +27,7 @@
     "js-yaml": "^5.0.0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.1.0",
     "@kubernetes/client-node": "^2.0.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.222.0",
     "@opentelemetry/instrumentation": "^0.222.0",

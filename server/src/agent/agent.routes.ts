@@ -8,6 +8,7 @@ import { ConversationManager } from './conversation-manager.js';
 import { chatRequestSchema } from '../validators/agent.validators.js';
 import { env } from '../config/env.js';
 import { getMonitorService } from './monitor/monitor-service.js';
+import { getModelUsage } from './llm-gateway.js';
 
 const router: RouterType = Router();
 
@@ -20,6 +21,15 @@ const noStoreHeaders = {
 };
 
 router.use(authMiddleware);
+
+// Eval-only: Claude token usage accumulated by this server, per model (the
+// evaluation runner turns it into a cost and stops at its budget).
+router.get('/usage', (_req, res) => {
+  if (!env.AGENT_EVAL_OPTIONS) {
+    throw new AppError('Usage is only available on evaluation servers', 403);
+  }
+  res.json(getModelUsage());
+});
 
 router.get('/health', async (_req, res, next) => {
   try {

@@ -20,6 +20,9 @@ function getAgentConfig(): AgentConfig {
     chatBaseUrl: env.CHAT_BASE_URL,
     chatApiKey: env.CHAT_API_KEY,
     chatDisableThinking: env.CHAT_DISABLE_THINKING,
+    anthropicApiKey: env.ANTHROPIC_API_KEY,
+    chatEffort: env.CHAT_EFFORT,
+    anthropicFallback: env.CHAT_ANTHROPIC_FALLBACK,
     // For the openai provider the model must come from CHAT_MODEL; for ollama
     // it falls back to OLLAMA_MODEL so the default path is unchanged.
     chatModel: env.CHAT_MODEL || env.OLLAMA_MODEL,
@@ -44,7 +47,12 @@ export function getLLMGateway(): LLMGateway {
         logger.info('LLM gateway initialized', {
           status: health.status,
           chatProvider: env.CHAT_PROVIDER,
-          chatHost: env.CHAT_PROVIDER === 'openai' ? env.CHAT_BASE_URL : env.OLLAMA_BASE_URL,
+          chatHost:
+            env.CHAT_PROVIDER === 'openai'
+              ? env.CHAT_BASE_URL
+              : env.CHAT_PROVIDER === 'anthropic'
+                ? 'api.anthropic.com'
+                : env.OLLAMA_BASE_URL,
           chatModel: env.CHAT_MODEL || env.OLLAMA_MODEL,
           embedHost: env.OLLAMA_BASE_URL,
           embedModel: env.OLLAMA_EMBED_MODEL,

@@ -40,7 +40,19 @@ const envSchema = z.object({
   // OLLAMA_BASE_URL; 'openai' uses any OpenAI-compatible endpoint
   // (CHAT_BASE_URL, e.g. the office vLLM) for chat only — embeddings always
   // stay on Ollama so retrieval is held constant.
-  CHAT_PROVIDER: z.enum(['ollama', 'openai']).default('ollama'),
+  // 'anthropic' = the Claude API via the official SDK (ANTHROPIC_API_KEY).
+  CHAT_PROVIDER: z.enum(['ollama', 'openai', 'anthropic']).default('ollama'),
+  ANTHROPIC_API_KEY: z.string().default(''),
+  // Claude thinking depth (thinking cannot be switched off on current Claude
+  // models; effort is the control and is billed as output tokens).
+  CHAT_EFFORT: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).default('medium'),
+  // Re-run a declined Claude request on another Claude model (server-side
+  // fallback). Evaluations set this to false so every answer comes from the
+  // model under test; declines are then logged and returned as empty answers.
+  CHAT_ANTHROPIC_FALLBACK: z
+    .enum(['true', 'false', '1', '0'])
+    .default('true')
+    .transform((v) => v === 'true' || v === '1'),
   CHAT_BASE_URL: z.string().url().default('https://openrouter.ai/api/v1'),
   CHAT_API_KEY: z.string().default(''),
   // Empty falls back to OLLAMA_MODEL (so the default ollama path is unchanged).

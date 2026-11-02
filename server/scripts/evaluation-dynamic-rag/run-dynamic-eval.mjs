@@ -13,6 +13,11 @@
  * The server must run with AGENT_EVAL_OPTIONS=true (per-request retrievalMode)
  * and AGENT_LLM_TITLES=false. Re-running with the same --out resumes: rows
  * already recorded are skipped. Env: BASE_URL (default http://127.0.0.1:3100).
+ *
+ * --budget-usd=N (Claude runs): after each answer, read the server's token usage
+ * (GET /api/agent/usage), price it, record the running cost on the row, and stop
+ * once the cost reaches N. A model missing from PRICES stops the run rather than
+ * spending untracked money.
  */
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, join } from 'node:path';
@@ -27,6 +32,15 @@ const CONDITIONS = arg('conditions', 'A,B,C').split(',');
 const REPS = Number(arg('reps', '1'));
 const IDS = arg('ids', '') ? new Set(arg('ids', '').split(',')) : null;
 const MODE = { A: 'vector', B: 'structured', C: 'auto' };
+const BUDGET = arg('budget-usd', '') ? Number(arg('budget-usd', '')) : null;
+// USD per million tokens (input, output), Claude API list prices. Cache reads
+// cost 0.1x input and cache writes 1.25x input.
+const PRICES = {
+  'claude-fable-5-1': [10, 50],
+  'claude-opus-5-5': [4, 20],
+  'claude-sonnet-5-5': [2, 10],
+  'claude-haiku-5-5': [0.1, 0.5],
+};
 
 const questions = JSON.parse(readFileSync(at(arg('questions', 'questions-dynamic-rag.json')), 'utf8'))
   .filter((q) => !IDS || IDS.has(q.id));
@@ -81,7 +95,23 @@ async function ask(question, retrievalMode) {
   return { answer, retrieval, sources, latencyMs: Date.now() - t0, firstTokenMs };
 }
 
+/** Total cost so far of the Claude calls made by the server (null when not tracked). */
+async function spentUsd() {
+  const res = await fetch(`${BASE}/api/agent/usage`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`usage ${res.status}: ${await res.text()}`);
+  let usd = 0;
+  for (const [model, u] of Object.entries(await res.json())) {
+    const price = PRICES[model];
+    if (!price) throw new Error(`no price for model ${model}: refusing to continue untracked`);
+    const [inp, out] = price;
+    usd += (u.inputTokens * inp + u.outputTokens * out + u.cacheReadTokens * inp * 0.1 + u.cacheWriteTokens * inp * 1.25) / 1e6;
+  }
+  return usd;
+}
+const startUsd = BUDGET === null ? 0 : await spentUsd();
+
 let n = 0;
+let costUsd = 0;
 for (let rep = 1; rep <= REPS; rep++) {
   for (const condition of CONDITIONS) {
     for (const q of questions) {
@@ -93,10 +123,18 @@ for (let rep = 1; rep <= REPS; rep++) {
       } catch (error) {
         row.error = String(error);
       }
+      if (BUDGET !== null) {
+        costUsd = (await spentUsd()) - startUsd;
+        row.costUsd = Number(costUsd.toFixed(4));
+      }
       appendFileSync(OUT, `${JSON.stringify(row)}\n`);
       n++;
       process.stdout.write(row.error ? 'x' : '.');
+      if (BUDGET !== null && costUsd >= BUDGET) {
+        console.log(`\nBudget reached: $${costUsd.toFixed(2)} >= $${BUDGET} — stopping (re-run to resume).`);
+        process.exit(0);
+      }
     }
   }
 }
-console.log(`\n${n} answers → ${OUT}`);
+console.log(`\n${n} answers → ${OUT}${BUDGET !== null ? ` · cost this run $${costUsd.toFixed(2)}` : ''}`);

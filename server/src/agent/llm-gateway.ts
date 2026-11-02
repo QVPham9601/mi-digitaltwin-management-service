@@ -1,3 +1,4 @@
+import Anthropic from '@anthropic-ai/sdk';
 import { Ollama } from 'ollama';
 import { logger } from '../utils/logger.js';
 import type { AgentConfig, ChatMessage, GatewayHealthStatus } from './types.js';
@@ -36,7 +37,9 @@ export class LLMGateway {
       const generationPromise =
         this.config.chatProvider === 'openai'
           ? this.chatOpenAI(messages, onToken)
-          : this.chatOllama(messages, onToken);
+          : this.config.chatProvider === 'anthropic'
+            ? this.chatAnthropic(messages, onToken)
+            : this.chatOllama(messages, onToken);
 
       const timeoutPromise = new Promise<never>((_resolve, reject) => {
         timeoutHandle = setTimeout(() => {
@@ -162,6 +165,66 @@ export class LLMGateway {
    * the start. Coalesce all system messages into one leading message and keep
    * the user/assistant turns in order. The Ollama path is unaffected.
    */
+  private anthropic?: Anthropic;
+
+  private anthropicClient(): Anthropic {
+    // An empty key lets the SDK resolve credentials itself (env / `ant` profile).
+    this.anthropic ??= new Anthropic(
+      this.config.anthropicApiKey ? { apiKey: this.config.anthropicApiKey } : {}
+    );
+    return this.anthropic;
+  }
+
+  /**
+   * Shared Claude request fields. System messages go to the top-level `system`
+   * field. No temperature: current Claude models reject sampling parameters;
+   * thinking is adaptive and its depth is set by `effort`. max_tokens leaves
+   * room for thinking, which counts towards it.
+   */
+  private anthropicRequest(messages: ChatMessage[], model = this.config.chatModel) {
+    const system = messages
+      .filter((m) => m.role === 'system')
+      .map((m) => m.content)
+      .join('\n\n');
+    return {
+      model,
+      max_tokens: Math.max(this.config.numPredict, ANTHROPIC_MAX_TOKENS),
+      ...(system && { system }),
+      messages: messages
+        .filter((m) => m.role !== 'system')
+        .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+      ...(this.config.anthropicFallback && {
+        betas: ['server-side-fallback-2026-07-01'],
+        fallbacks: 'default' as const,
+      }),
+    };
+  }
+
+  /** Claude chat generation (official SDK), streamed token by token. */
+  private async chatAnthropic(
+    messages: ChatMessage[],
+    onToken?: (token: string) => void
+  ): Promise<string> {
+    const stream = this.anthropicClient().beta.messages.stream({
+      ...this.anthropicRequest(messages),
+      output_config: { effort: this.config.chatEffort },
+    });
+    let fullResponse = '';
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        fullResponse += event.delta.text;
+        onToken?.(event.delta.text);
+      }
+    }
+    const final = await stream.finalMessage();
+    recordUsage(final.model, final.usage);
+    if (final.stop_reason === 'refusal') {
+      logger.warn('Claude declined the request', { model: final.model });
+    }
+    // An empty answer reaches agent-service, which replaces it with a fallback message.
+    return fullResponse;
+  }
+
   private static leadingSystem(messages: ChatMessage[]): ChatMessage[] {
     const system = messages
       .filter((m) => m.role === 'system')
@@ -186,6 +249,22 @@ export class LLMGateway {
     schema: object,
     model = this.config.chatModel
   ): Promise<T> {
+    if (this.config.chatProvider === 'anthropic') {
+      const response = await this.anthropicClient().beta.messages.create({
+        ...this.anthropicRequest(messages, model),
+        output_config: {
+          effort: this.config.chatEffort,
+          format: { type: 'json_schema', schema: schema as Record<string, unknown> },
+        },
+      });
+      recordUsage(response.model, response.usage);
+      if (response.stop_reason === 'refusal') {
+        throw new Error('Claude declined the request (stop_reason: refusal)');
+      }
+      const text = response.content.find((block) => block.type === 'text');
+      return JSON.parse(text && text.type === 'text' ? text.text : '') as T;
+    }
+
     if (this.config.chatProvider === 'openai') {
       const response = await fetch(`${this.config.chatBaseUrl}/chat/completions`, {
         method: 'POST',
@@ -269,7 +348,12 @@ export class LLMGateway {
       const chatModelAvailable =
         this.config.chatProvider === 'openai'
           ? Boolean(this.config.chatModel)
-          : modelExists(this.config.chatModel, availableModels);
+          : this.config.chatProvider === 'anthropic'
+            ? Boolean(
+                this.config.chatModel &&
+                (this.config.anthropicApiKey || process.env.ANTHROPIC_API_KEY)
+              )
+            : modelExists(this.config.chatModel, availableModels);
       const embedModelAvailable = modelExists(this.config.embedModel, availableModels);
 
       const status: GatewayHealthStatus['status'] =
@@ -387,4 +471,46 @@ async function readOpenAIStream(
   // An empty answer is returned as-is: agent-service replaces it with a
   // fallback message, the same way as for the Ollama path.
   return fullResponse;
+}
+
+const ANTHROPIC_MAX_TOKENS = 16000;
+
+/** Token usage per model, accumulated over the process (evaluation budget guard). */
+export interface ModelUsage {
+  calls: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+}
+
+const usageTotals = new Map<string, ModelUsage>();
+
+function recordUsage(
+  model: string,
+  usage: {
+    input_tokens: number;
+    output_tokens: number;
+    cache_read_input_tokens?: number | null;
+    cache_creation_input_tokens?: number | null;
+  }
+): void {
+  const total = usageTotals.get(model) ?? {
+    calls: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    cacheReadTokens: 0,
+    cacheWriteTokens: 0,
+  };
+  total.calls += 1;
+  total.inputTokens += usage.input_tokens;
+  total.outputTokens += usage.output_tokens;
+  total.cacheReadTokens += usage.cache_read_input_tokens ?? 0;
+  total.cacheWriteTokens += usage.cache_creation_input_tokens ?? 0;
+  usageTotals.set(model, total);
+}
+
+/** Snapshot of the accumulated Claude usage, keyed by the model that answered. */
+export function getModelUsage(): Record<string, ModelUsage> {
+  return Object.fromEntries([...usageTotals].map(([model, usage]) => [model, { ...usage }]));
 }
