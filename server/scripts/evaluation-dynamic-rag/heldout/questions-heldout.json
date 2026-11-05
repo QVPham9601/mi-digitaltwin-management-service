@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "author": "",
+    "frozenCommit": "ce280bc (tag heldout-freeze)",
+    "writtenOn": "",
+    "minutesSpent": null,
+    "openedOldQuestionSet": false
+  },
+  "questions": [
+    {
+      "id": "H01",
+      "category": "filter",
+      "question": "",
+      "expectedRoute": "structured",
+      "myAnswer": "",
+      "note": ""
+    },
+    {
+      "id": "H02",
+      "category": "negation",
+      "question": "",
+      "expectedRoute": "structured",
+      "myAnswer": "",
+      "note": ""
+    },
+    {
+      "id": "H03",
+      "category": "lookup",
+      "question": "",
+      "expectedRoute": "lookup",
+      "myAnswer": "",
+      "note": ""
+    }
+  ]
+}
