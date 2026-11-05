@@ -418,6 +418,15 @@ export type ScenarioResolution = { ok: true; title: string } | { ok: false; reas
  * an exact match is not enough: token overlap decides, with a 50% threshold and
  * a unique winner.
  */
+/** The scenario whose title or one of whose other names is exactly `name`, or null. */
+export function scenarioByExactName(name: string, catalog: Catalog): string | null {
+  const needle = normalise(name);
+  const match = catalog.scenarios.find(
+    (s) => normalise(s.title) === needle || s.aliases.some((alias) => normalise(alias) === needle)
+  );
+  return match ? match.title : null;
+}
+
 export function resolveScenarioTitle(reference: string, catalog: Catalog): ScenarioResolution {
   const titles = catalog.scenarios.map((s) => s.title);
   if (titles.length === 0) {

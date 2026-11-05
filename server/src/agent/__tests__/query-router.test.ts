@@ -216,6 +216,26 @@ describe('routeQuery', () => {
 });
 
 describe('resolveQuery', () => {
+  it('turns a scenario title used as a use case into a scenario filter', () => {
+    const resolved = resolveQuery(
+      {
+        kind: 'structured',
+        where: [
+          {
+            field: 'potentialUseCases',
+            op: 'contains',
+            value: 'CI attack → MMT detection → AI4SOAR block',
+            not: true,
+          },
+        ],
+      },
+      CATALOG
+    );
+    expect(resolved.ok && resolved.query.notInScenario).toBe(
+      'CI attack → MMT detection → AI4SOAR block'
+    );
+  });
+
   it('turns a scenario named as a use case into a scenario filter', () => {
     const resolved = resolveQuery(
       {

@@ -11,6 +11,7 @@ import {
   buildVocabulary,
   predicateSchema,
   resolveScenarioTitle,
+  scenarioByExactName,
   resolveVocabularyValue,
   type Catalog,
   type CatalogVocabulary,
@@ -240,6 +241,11 @@ function resolvePredicate(
 function scenarioFromUseCase(predicate: Predicate, catalog: Catalog): string | null {
   if (predicate.field !== 'potentialUseCases' || typeof predicate.value !== 'string') {
     return null;
+  }
+  // A scenario's exact title or other name, even without the word "scenario".
+  const exact = scenarioByExactName(predicate.value, catalog);
+  if (exact) {
+    return exact;
   }
   if (!/\bscenario\b/i.test(predicate.value)) {
     return null;
