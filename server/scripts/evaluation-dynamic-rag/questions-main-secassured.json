@@ -69,7 +69,6 @@
     "question": "What kind of user interface does MAG provide?",
     "groundTruth": "Terminal (CLI: mag <attack> --target-ip <ip> --target-port <port>, driven via kubectl exec)."
   },
-
   {
     "id": "C1",
     "category": "comparative",
@@ -96,7 +95,8 @@
     "category": "comparative",
     "expectedIntent": "service",
     "question": "Which services make up the Montimage attack-detect-respond scenario, and what role does each play?",
-    "groundTruth": "MAG = attack, HTTP-SIM = target (CI-SIM is also an interactive demo target), MMT-PROBE = monitor (sidecar in the target pod), AI4SOAR = reaction."
+    "groundTruth": "MAG = attack, CI-SIM = target, SECANOD = monitor/detection (sidecar in the target pod, embeds MMT-Probe), KAFKA = alert bus, AI4SOAR = reaction.",
+    "groundTruthNote": "Updated 2026-11-09 to the scenario's current members. Runs before this date were graded against the first-demo answer: MAG = attack, HTTP-SIM = target (CI-SIM also an interactive demo target), MMT-PROBE = monitor, AI4SOAR = reaction."
   },
   {
     "id": "C5",
@@ -126,7 +126,6 @@
     "question": "Which services have a current TRL of 3?",
     "groundTruth": "SECANOD, SECDEVTWIN, SECSAC."
   },
-
   {
     "id": "A1",
     "category": "adversarial",
@@ -169,7 +168,6 @@
     "question": "Which services are certified by the U.S. National Security Agency (NSA)?",
     "groundTruth": "None - no NSA certification appears in the catalog."
   },
-
   {
     "id": "G1",
     "category": "casual",
