@@ -20,15 +20,35 @@ import {
   type Predicate,
   type StructuredQuery,
 } from './structured-retriever.js';
+import {
+  RUN_FIELDS,
+  RUN_OUTCOMES,
+  RUN_SERVICE_FIELDS,
+  RUN_STATUSES,
+  STATE_BOOLEAN_FIELDS,
+  STATE_FIELD_SEMANTICS,
+  STATE_LIST_FIELDS,
+  STATE_MAPPING_RULES,
+  STATE_NUMERIC_FIELDS,
+  STATE_OPS,
+  STATE_OPERATORS,
+  STATE_TABLES,
+  stateQuerySchema,
+  type StatePredicate,
+  type StateQuery,
+  type TwinState,
+} from './state-retriever.js';
 
 /**
- * Query router: decides between the vector branch (a factual lookup) and the
- * structured branch (a filter / count / group / join over the catalog), and
- * builds the structured query when the structured branch is chosen.
+ * Query router: decides between the vector branch (a factual lookup), the
+ * structured branch (a filter / count / group / join over the catalog) and
+ * the state branch (a filter / count / group over the *run state* read live
+ * from MongoDB), and builds the structured query when a structured or state
+ * route is chosen.
  *
  * The model only *fills in* a closed schema. Every value it produces is
- * resolved against the catalog's real vocabulary; an unmappable value makes
- * the route invalid so the caller can fall back to the vector branch.
+ * resolved against the real vocabulary; an unmappable value makes the route
+ * invalid so the caller can fall back to the vector branch.
  */
 
 // ---------------------------------------------------------------------------
@@ -36,7 +56,7 @@ import {
 // ---------------------------------------------------------------------------
 
 export const routerSchema = z.object({
-  kind: z.enum(['lookup', 'structured']),
+  kind: z.enum(['lookup', 'structured', 'state']),
   /** The service a lookup question is about (shortName). */
   service: z.string().optional(),
   scenario: z.string().optional(),
@@ -47,6 +67,8 @@ export const routerSchema = z.object({
   groupBy: z.enum(QUERY_FIELDS).optional(),
   groupByPrefix: z.string().optional(),
   aggregate: aggregateSchema.optional(),
+  /** The state query, when kind = "state". */
+  state: stateQuerySchema.optional(),
 });
 export type RouterOutput = z.infer<typeof routerSchema>;
 
@@ -121,33 +143,49 @@ const MAPPING_RULES = [
 export function buildRouterMessages(
   question: string,
   vocabulary: CatalogVocabulary,
-  forceStructured: boolean
+  forceStructured: boolean,
+  stateSection?: string
 ): ChatMessage[] {
   const kindRules = forceStructured
     ? [
         'You must answer kind = "structured" with a complete query: this question always needs a',
         'filter, a count, a comparison, a group-by or a scenario join over the whole catalog.',
       ].join('\n')
-    : [
-        'kind = "lookup" when the question asks for one fact about one named service',
-        '(e.g. "Who provides SECSAC?", "What is the current TRL of MMT-PROBE?").',
-        'kind = "structured" when the question filters, counts, compares, groups or joins over the',
-        'catalog (e.g. "Which services are in the Monitor category?", "How many services does X",',
-        '"Which provider has the most services in Y?").',
-      ].join('\n');
+    : stateSection
+      ? [
+          'kind = "lookup" when the question asks for one fact about one named service',
+          '(e.g. "Who provides SECSAC?", "What is the current TRL of MMT-PROBE?").',
+          'kind = "structured" when the question filters, counts, compares, groups or joins over the',
+          'catalog (e.g. "Which services are in the Monitor category?", "Which provider has the most',
+          'services in Y?"). Facts about what a service IS stay here.',
+          'kind = "state" when the question asks about the twin\'s RUNS: executions, deployments,',
+          'alert counts, attackers, availability or health, or says "now", "currently", "last",',
+          '"latest", "how many times", "was the last run a success". Fill the "state" query object.',
+          'A service name inside a run-state question does NOT make it a catalog question.',
+        ].join('\n')
+      : [
+          'kind = "lookup" when the question asks for one fact about one named service',
+          '(e.g. "Who provides SECSAC?", "What is the current TRL of MMT-PROBE?").',
+          'kind = "structured" when the question filters, counts, compares, groups or joins over the',
+          'catalog (e.g. "Which services are in the Monitor category?", "How many services does X",',
+          '"Which provider has the most services in Y?").',
+        ].join('\n');
 
   const system = `You are the query router of a cybersecurity service catalog agent.
-You translate a user question into a structured query over the service catalog.
+You translate a user question into a structured query over the service catalog
+or, when the question is about past and current executions, over the runs.
 
 Catalog vocabulary (use these exact strings, never invent one):
 ${formatVocabulary(vocabulary)}
-
+${stateSection ? `\nRun-state vocabulary (use these exact values):\n${stateSection}\n` : ''}
 Fields you may query on:
 ${FIELD_SEMANTICS}
-
+${stateSection ? `\nRun-state fields:\n${STATE_FIELD_SEMANTICS}\n` : ''}
 ${OPERATORS}
+${stateSection ? `\n${STATE_OPERATORS}\n` : ''}
 
 ${MAPPING_RULES}
+${stateSection ? `\nRun-state mapping rules:\n${STATE_MAPPING_RULES}` : ''}
 
 ${kindRules}
 
@@ -163,14 +201,261 @@ Rules:
 }
 
 // ---------------------------------------------------------------------------
+// Run-state routing (resolve + validate a `state` query, §4.2)
+// ---------------------------------------------------------------------------
+
+/** The fields a predicate may use on each state table. */
+export function stateFieldsForTable(table: 'runs' | 'runServices'): string[] {
+  return table === 'runServices'
+    ? ['scenario', 'runNumber', ...RUN_SERVICE_FIELDS]
+    : [...RUN_FIELDS];
+}
+
+/** The one-line "Run-state vocabulary" section for the router prompt. */
+export function stateVocabularySection(state: TwinState): string {
+  const executedBy = [...new Set(state.runs.map((run) => run.executedBy).filter(Boolean))];
+  const services = [...new Set(state.runServices.map((row) => row.service))].sort();
+  const attackers = [...new Set(state.runs.flatMap((run) => run.attackers))];
+  const scenarios = [...new Set(state.runs.map((run) => run.scenario))];
+  const lines = [
+    `tables: ${STATE_TABLES.join(' | ')}`,
+    `run statuses: ${RUN_STATUSES.join(' | ')}`,
+    `run outcomes: ${RUN_OUTCOMES.join(' | ')}`,
+    scenarios.length > 0
+      ? `scenarios with runs: ${scenarios.join(' | ')}`
+      : 'scenarios with runs: (none)',
+    executedBy.length > 0 ? `executedBy (names on record): ${executedBy.join(' | ')}` : '',
+    services.length > 0 ? `services seen in runs: ${services.join(' | ')}` : '',
+    attackers.length > 0 ? `attacker addresses on record: ${attackers.join(' | ')}` : '',
+  ].filter(Boolean);
+  return lines.join('\n');
+}
+
+/** Resolve one state predicate's value, or the reason it could not be resolved. */
+function resolveStatePredicate(
+  predicate: StatePredicate,
+  table: 'runs' | 'runServices',
+  state: TwinState
+): { ok: true; predicate: StatePredicate } | { ok: false; reason: string } {
+  const allowed = stateFieldsForTable(table);
+  if (!allowed.includes(predicate.field)) {
+    return {
+      ok: false,
+      reason: `field ${predicate.field} is not a ${table} field (use one of: ${allowed.join(', ')})`,
+    };
+  }
+
+  if (
+    STATE_OPS.filter((op) => ['sizeEq', 'sizeGte', 'sizeLte'].includes(op)).includes(predicate.op)
+  ) {
+    if (predicate.field !== 'attackers') {
+      return { ok: false, reason: `operator ${predicate.op} is only valid on the attackers list` };
+    }
+    const value = Number(Array.isArray(predicate.value) ? predicate.value[0] : predicate.value);
+    if (!Number.isInteger(value) || value < 0) {
+      return { ok: false, reason: `operator ${predicate.op} needs a whole number` };
+    }
+    return { ok: true, predicate: { ...predicate, value } };
+  }
+
+  const numericOp = ['lt', 'lte', 'gt', 'gte', 'eq', 'ne'].includes(predicate.op);
+  const isNumeric = STATE_NUMERIC_FIELDS.includes(predicate.field as never);
+  if (isNumeric) {
+    const raw = Array.isArray(predicate.value) ? predicate.value[0] : predicate.value;
+    const value = typeof raw === 'number' ? raw : Number(raw);
+    if (!Number.isFinite(value)) {
+      return { ok: false, reason: `field ${predicate.field} needs a numeric value` };
+    }
+    if (!numericOp) {
+      return { ok: false, reason: `operator ${predicate.op} is not valid on ${predicate.field}` };
+    }
+    return { ok: true, predicate: { ...predicate, value } };
+  }
+
+  if (['lt', 'lte', 'gt', 'gte'].includes(predicate.op)) {
+    return {
+      ok: false,
+      reason: `operator ${predicate.op} is only valid on a numeric run-state field`,
+    };
+  }
+
+  if (predicate.field === 'scenario') {
+    // Resolved against the catalog's scenario titles later, in resolveStateQuery.
+    if (typeof predicate.value !== 'string') {
+      return { ok: false, reason: 'field scenario needs a string value' };
+    }
+    if (predicate.op !== 'eq') {
+      return { ok: false, reason: `operator ${predicate.op} is not valid on scenario` };
+    }
+    return { ok: true, predicate };
+  }
+
+  if (STATE_BOOLEAN_FIELDS.includes(predicate.field as never)) {
+    const raw = predicate.value;
+    if (typeof raw !== 'boolean' && !['true', 'false'].includes(String(raw).toLowerCase())) {
+      return { ok: false, reason: `field ${predicate.field} needs true or false` };
+    }
+    const value = typeof raw === 'boolean' ? raw : String(raw).toLowerCase() === 'true';
+    return { ok: true, predicate: { ...predicate, value } };
+  }
+
+  // The remaining string fields have a vocabulary from the twin state itself:
+  // status/outcome from the closed sets, executedBy/service/attackers from the
+  // records. An unknown value is rejected, never silently accepted.
+  const closedSets: Record<string, string[]> = {
+    status: RUN_STATUSES,
+    outcome: RUN_OUTCOMES,
+  };
+  const stateSets: Record<string, string[]> = {
+    executedBy: [...new Set(state.runs.map((run) => run.executedBy).filter(Boolean))],
+    service: [...new Set(state.runServices.map((row) => row.service))],
+    attackers: [...new Set(state.runs.flatMap((run) => run.attackers))],
+  };
+  const candidates = closedSets[predicate.field] ?? stateSets[predicate.field] ?? [];
+  if (candidates.length === 0) {
+    return { ok: false, reason: `field ${predicate.field} is not a state field` };
+  }
+
+  const values = Array.isArray(predicate.value) ? predicate.value : [predicate.value];
+  const resolved: string[] = [];
+  for (const value of values) {
+    if (typeof value !== 'string') {
+      return { ok: false, reason: `field ${predicate.field} needs a string value` };
+    }
+    const needle = value.trim().toLowerCase();
+    const exact = candidates.find((candidate) => candidate.toLowerCase() === needle);
+    if (exact) {
+      resolved.push(exact);
+      continue;
+    }
+    const partial = candidates.filter(
+      (candidate) =>
+        candidate.toLowerCase().includes(needle) || needle.includes(candidate.toLowerCase())
+    );
+    if (partial.length === 1) {
+      resolved.push(partial[0]);
+      continue;
+    }
+    return {
+      ok: false,
+      reason: closedSets[predicate.field]
+        ? `value "${value}" is not a known ${predicate.field} (use one of: ${candidates.join(', ')})`
+        : `value "${value}" is not in the run-state vocabulary for ${predicate.field}`,
+    };
+  }
+
+  return {
+    ok: true,
+    predicate: { ...predicate, value: Array.isArray(predicate.value) ? resolved : resolved[0] },
+  };
+}
+
+/**
+ * Resolve the model's state query against the real twin state and the
+ * catalog's scenarios. Returns a cleaned query, or why it could not be built.
+ */
+export function resolveStateQuery(
+  output: StateQuery,
+  catalog: Catalog,
+  state: TwinState
+): { ok: true; query: StateQuery } | { ok: false; reason: string } {
+  const table = output.table ?? 'runs';
+  let scenario: string | undefined;
+
+  if (output.scenario) {
+    const resolution = resolveScenarioTitle(output.scenario, catalog);
+    if (!resolution.ok) {
+      return { ok: false, reason: resolution.reason };
+    }
+    scenario = resolution.title;
+  }
+
+  const cleanPredicateGroups = (
+    groups: Array<StatePredicate[]>
+  ): { ok: true; cleaned: StatePredicate[][] } | { ok: false; reason: string } => {
+    const cleaned: StatePredicate[][] = [];
+    for (const group of groups) {
+      const resolvedGroup: StatePredicate[] = [];
+      for (const predicate of group) {
+        const resolved = resolveStatePredicate(predicate, table, state);
+        if (!resolved.ok) {
+          return { ok: false, reason: resolved.reason };
+        }
+        resolvedGroup.push(resolved.predicate);
+      }
+      if (resolvedGroup.length > 0) {
+        cleaned.push(resolvedGroup);
+      }
+    }
+    return { ok: true, cleaned };
+  };
+
+  const where = cleanPredicateGroups([output.where ?? []]);
+  if (!where.ok) {
+    return { ok: false, reason: where.reason };
+  }
+  const whereAny = cleanPredicateGroups(output.whereAny ?? []);
+  if (!whereAny.ok) {
+    return { ok: false, reason: whereAny.reason };
+  }
+
+  if (output.groupBy && !stateFieldsForTable(table).includes(output.groupBy)) {
+    return {
+      ok: false,
+      reason: `cannot group ${table} by ${output.groupBy} (use one of: ${stateFieldsForTable(table).join(', ')})`,
+    };
+  }
+
+  if (output.aggregate) {
+    const aggregate = output.aggregate;
+    if (aggregate.op === 'min' || aggregate.op === 'max') {
+      if (!aggregate.field || !STATE_NUMERIC_FIELDS.includes(aggregate.field as never)) {
+        return {
+          ok: false,
+          reason: `aggregate ${aggregate.op} needs a numeric run-state field (e.g. durationMs, alertsTotal, availability)`,
+        };
+      }
+    }
+    if (aggregate.op === 'rank') {
+      const field = aggregate.field;
+      if (
+        !field ||
+        !(
+          STATE_NUMERIC_FIELDS.includes(field as never) ||
+          STATE_LIST_FIELDS.includes(field as never)
+        )
+      ) {
+        return {
+          ok: false,
+          reason: 'aggregate rank needs a numeric run-state field or the attackers list',
+        };
+      }
+    }
+  }
+
+  const query: StateQuery = {
+    ...(output.table ? { table: output.table } : {}),
+    ...(scenario ? { scenario } : {}),
+    ...(output.select ? { select: output.select } : {}),
+    ...(output.runNumber ? { runNumber: output.runNumber } : {}),
+    where: where.cleaned[0] ?? [],
+    whereAny: whereAny.cleaned,
+    ...(output.groupBy ? { groupBy: output.groupBy } : {}),
+    ...(output.aggregate ? { aggregate: output.aggregate } : {}),
+  };
+  return { ok: true, query };
+}
+
+// ---------------------------------------------------------------------------
 // Routing
 // ---------------------------------------------------------------------------
 
-export type RouteKind = 'lookup' | 'structured' | 'invalid';
+export type RouteKind = 'lookup' | 'structured' | 'state' | 'invalid';
 
 export interface RouteOutcome {
   kind: RouteKind;
-  query?: StructuredQuery;
+  /** The structured catalog query (kind = structured) or state query (kind = state). */
+  query?: StructuredQuery | StateQuery;
   /** The service a lookup question is about, when the model named one. */
   service?: string;
   /** Why the route failed (invalid query, unmapped value, …). */
@@ -184,6 +469,12 @@ export type ChatJsonFn = <T>(messages: ChatMessage[], schema: object, model?: st
 export interface RouteOptions {
   /** Ignore the model's routing decision and always build a structured query. */
   forceStructured?: boolean;
+  /**
+   * The run state, loaded live by the caller when the state branch should be
+   * routable (auto mode). Without it the router prompt does not advertise the
+   * state branch and a model "state" answer is invalid.
+   */
+  twinState?: TwinState;
   /** Injectable for tests. */
   chatJson?: ChatJsonFn;
   /** Model used for routing (defaults to the agent's chat model). */
@@ -372,6 +663,12 @@ export async function routeQuery(
   options: RouteOptions = {}
 ): Promise<RouteOutcome> {
   const forceStructured = options.forceStructured ?? false;
+  // The state branch needs the live state both for the prompt's vocabulary
+  // (services seen in runs, statuses on record) and to resolve the values the
+  // model produces. The caller loads it (fresh, one read per question) and
+  // passes it in; without it the router prompt does not advertise the state
+  // branch and a model "state" answer is invalid.
+  const twinState = options.twinState ?? null;
   const chatJson: ChatJsonFn =
     options.chatJson ??
     ((messages, schema, model) => getLLMGateway().chatJson(messages, schema, model));
@@ -379,7 +676,12 @@ export async function routeQuery(
   let raw: unknown;
   try {
     raw = await chatJson<unknown>(
-      buildRouterMessages(question, buildVocabulary(catalog), forceStructured),
+      buildRouterMessages(
+        question,
+        buildVocabulary(catalog),
+        forceStructured,
+        twinState && !forceStructured ? stateVocabularySection(twinState) : undefined
+      ),
       ROUTER_JSON_SCHEMA,
       options.model
     );
@@ -399,6 +701,28 @@ export async function routeQuery(
   }
 
   const output = parsed.data;
+
+  if (output.kind === 'state') {
+    if (!twinState) {
+      return {
+        kind: 'invalid',
+        reason: 'the route needs run state: answer with kind "structured" or "lookup"',
+        raw,
+      };
+    }
+    const resolution = resolveStateQuery(
+      output.state ?? { where: [], whereAny: [] },
+      catalog,
+      twinState
+    );
+    if (!resolution.ok) {
+      logger.warn('Structured retrieval: state query could not be resolved', {
+        reason: resolution.reason,
+      });
+      return { kind: 'invalid', reason: resolution.reason, raw };
+    }
+    return { kind: 'state', query: resolution.query, raw };
+  }
 
   if (forceStructured || output.kind === 'structured') {
     const resolved = resolveQuery(output, catalog);

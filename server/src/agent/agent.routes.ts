@@ -138,7 +138,7 @@ router.post('/chat', validateBody(chatRequestSchema), async (req, res, next) => 
       conversationId?: string;
       useRag?: boolean;
       injectionScheme?: 'pre-user' | 'static';
-      retrievalMode?: 'vector' | 'structured' | 'auto';
+      retrievalMode?: 'vector' | 'structured' | 'auto' | 'state-static';
     };
     if (retrievalMode && !env.AGENT_EVAL_OPTIONS) {
       throw new AppError('retrievalMode is only available on evaluation servers', 403);

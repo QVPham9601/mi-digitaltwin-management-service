@@ -309,3 +309,195 @@ describe('resolveQuery: list sizes and ranking', () => {
     expect(ok('provider')).toBe(false);
   });
 });
+
+// ---------------------------------------------------------------------------
+// State route: the twin's run state questions (M1 live state)
+// ---------------------------------------------------------------------------
+
+import { stateVocabularySection, type StateQuery } from '../query-router.js';
+import type { TwinState } from '../state-retriever.js';
+
+const DEMO = 'CI attack → MMT detection → AI4SOAR block';
+
+function twinState(): TwinState {
+  return {
+    readAt: '2026-11-09T12:00:00Z',
+    runs: [
+      {
+        scenario: DEMO,
+        runId: 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a1',
+        runNumber: 1,
+        executedAt: '2026-10-05T09:48:00.000Z',
+        executedBy: 'grad-student',
+        status: 'completed',
+        outcome: 'passed',
+        completedAt: '2026-10-05T10:02:00.000Z',
+        durationMs: 840_000,
+        ageMs: Number.MAX_SAFE_INTEGER,
+        alertsTotal: 5,
+        uniqueAttackers: 1,
+        attackers: ['10.244.0.7'],
+        errorLines: 0,
+        warnings: 1,
+        restarts: 0,
+        hasReport: true,
+        partial: false,
+        suspectStale: false,
+      },
+      {
+        scenario: DEMO,
+        runId: 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a2',
+        runNumber: 2,
+        executedAt: '2026-11-09T11:00:00.000Z',
+        executedBy: 'grad-student',
+        status: 'running',
+        outcome: null,
+        completedAt: null,
+        durationMs: null,
+        ageMs: 3_600_000,
+        alertsTotal: null,
+        uniqueAttackers: null,
+        attackers: [],
+        errorLines: null,
+        warnings: null,
+        restarts: null,
+        hasReport: false,
+        partial: false,
+        suspectStale: false,
+      },
+    ],
+    runServices: [
+      {
+        scenario: DEMO,
+        runId: 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a1',
+        runNumber: 1,
+        service: 'SECANOD',
+        status: 'completed',
+        up: true,
+        availability: 1,
+        errorRate: 0,
+        requestRate: 3,
+        latencyP95Ms: 90,
+      },
+    ],
+  };
+}
+
+describe('routeQuery: state kind', () => {
+  it('resolves a state query and an informal scenario name', async () => {
+    const outcome = await routeQuery(
+      'What happened in the last run of Montimage attack→detect→respond?',
+      CATALOG,
+      {
+        twinState: twinState(),
+        chatJson: stubChatJson({
+          kind: 'state',
+          state: {
+            scenario: 'Montimage attack→detect→respond',
+            select: 'latest',
+            where: [],
+            whereAny: [],
+          },
+        }),
+      }
+    );
+    expect(outcome.kind).toBe('state');
+    const query = outcome.query as StateQuery;
+    expect(query.scenario).toBe(DEMO);
+    expect(query.select).toBe('latest');
+  });
+
+  it('resolves state vocabulary values (status, attacker, boolean)', async () => {
+    const outcome = await routeQuery('Which runs saw the 10.244.0.7 attacker?', CATALOG, {
+      twinState: twinState(),
+      chatJson: stubChatJson({
+        kind: 'state',
+        state: {
+          where: [{ field: 'status', op: 'eq', value: 'completed' }],
+          whereAny: [],
+        },
+      }),
+    });
+    expect(outcome.kind).toBe('state');
+    const query = outcome.query as StateQuery;
+    expect(query.where).toEqual([{ field: 'status', op: 'eq', value: 'completed' }]);
+  });
+
+  it('records the run-state vocabulary in the router prompt', async () => {
+    let messages: unknown;
+    await routeQuery('Is anything running right now?', CATALOG, {
+      twinState: twinState(),
+      chatJson: async (called) => {
+        messages = called;
+        return { kind: 'lookup', where: [] } as never;
+      },
+    });
+    const system = (messages as Array<{ role: string; content: string }>).find(
+      (message) => message.role === 'system'
+    )?.content;
+    expect(system).toContain('Run-state mapping rules');
+    expect(system).toContain(statusVocab(twinState()));
+  });
+
+  function statusVocab(state: TwinState): string {
+    return stateVocabularySection(state).split('\n')[0];
+  }
+
+  it('rejects an unknown run status', async () => {
+    const outcome = await routeQuery('Which runs are stopped?', CATALOG, {
+      twinState: twinState(),
+      chatJson: stubChatJson({
+        kind: 'state',
+        state: {
+          where: [{ field: 'status', op: 'eq', value: 'stopped' }],
+          whereAny: [],
+        },
+      }),
+    });
+    expect(outcome.kind).toBe('invalid');
+    expect(outcome.reason).toContain('not a known status');
+  });
+
+  it('rejects an unknown state field', async () => {
+    const outcome = await routeQuery('Which runs used banana mode?', CATALOG, {
+      twinState: twinState(),
+      chatJson: stubChatJson({
+        kind: 'state',
+        state: {
+          where: [{ field: 'banana', op: 'eq', value: 'yes' }],
+          whereAny: [],
+        },
+      }),
+    });
+    expect(outcome.kind).toBe('invalid');
+    expect(outcome.reason).toContain('banana');
+  });
+
+  it('rejects a state answer when the caller passed no twin state', async () => {
+    const outcome = await routeQuery('What was the outcome of the last run?', CATALOG, {
+      chatJson: stubChatJson({
+        kind: 'state',
+        state: { where: [], whereAny: [] },
+      }),
+    });
+    expect(outcome.kind).toBe('invalid');
+    expect(outcome.reason).toContain('run state');
+  });
+
+  it('rejects min/max on a non-numeric state field', async () => {
+    const outcome = await routeQuery('What scenario ran fastest?', CATALOG, {
+      twinState: twinState(),
+      chatJson: stubChatJson({
+        kind: 'state',
+        state: {
+          aggregate: { op: 'max', field: 'service' },
+          where: [],
+          whereAny: [],
+        },
+        where: [],
+      }),
+    });
+    expect(outcome.kind).toBe('invalid');
+    expect(outcome.reason).toContain('numeric run-state field');
+  });
+});

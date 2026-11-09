@@ -6,8 +6,10 @@ export const chatRequestSchema = z.object({
   useRag: z.boolean().optional(),
   injectionScheme: z.enum(['pre-user', 'static']).optional(),
   // Eval-only (requires AGENT_EVAL_OPTIONS=true): switch the retrieval
-  // strategy for this request ('vector' | 'structured' | 'auto').
-  retrievalMode: z.enum(['vector', 'structured', 'auto']).optional(),
+  // strategy for this request ('vector' | 'structured' | 'auto' |
+  // 'state-static'). 'state-static' answers from the static run index —
+  // the freshness baseline, never a live twin read.
+  retrievalMode: z.enum(['vector', 'structured', 'auto', 'state-static']).optional(),
 });
 
 export const conversationIdParamSchema = z.object({

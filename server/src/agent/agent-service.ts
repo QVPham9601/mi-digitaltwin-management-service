@@ -18,7 +18,14 @@ import {
   relaxEmptyQuery,
   type CatalogService,
   type Relaxation,
+  type StructuredQuery,
 } from './structured-retriever.js';
+import {
+  executeStateQuery,
+  formatStateResult,
+  loadTwinStateSafely,
+  retrieveStaticRuns,
+} from './state-retriever.js';
 import type { ChatMessage } from './types.js';
 
 export interface ChatResult {
@@ -28,21 +35,35 @@ export interface ChatResult {
   retrieval?: RetrievalDiagnostics;
 }
 
-/** The retrieval strategies: today's vector search, the structured branch, or both. */
-export type RetrievalMode = 'vector' | 'structured' | 'auto';
+/**
+ * The retrieval strategies: today's vector search, the structured catalog
+ * branch, their routed combination (auto), and the evaluation-only static
+ * baseline `state-static` (top-k run summaries from the snapshot index, §4.4).
+ */
+export type RetrievalMode = 'vector' | 'structured' | 'auto' | 'state-static';
 
 export interface RetrievalDiagnostics {
   mode: RetrievalMode;
   /** Which branch produced the context. */
-  route: 'none' | 'vector' | 'structured' | 'fallback';
+  route: 'none' | 'vector' | 'structured' | 'state' | 'state-static' | 'fallback';
   /** The router's decision, when the router ran. */
-  routerKind?: 'lookup' | 'structured' | 'invalid';
+  routerKind?: 'lookup' | 'structured' | 'state' | 'invalid';
   /** Why the structured branch was not used. */
   fallbackReason?: string;
   /** The structured query matched nothing and the prompt got its relaxations instead of "none". */
   relaxed?: boolean;
   /** The structured query that was executed. */
   query?: unknown;
+  /** The state query that was executed (kind = state). */
+  stateQuery?: unknown;
+  /** Rows loaded in the twin-state tables (runs + run services + flat total). */
+  stateRowCount?: number;
+  /** Matching rows of the state query. */
+  stateMatchCount?: number;
+  /** How many loaded runs look stale. */
+  suspectStaleCount?: number;
+  /** When the twin state was read (state / state-static routes). */
+  stateReadAt?: string;
   /** True when the structured query matched no service. */
   emptyResult?: boolean;
 }
@@ -66,6 +87,9 @@ export interface ChatOptions {
   retrievalMode?: RetrievalMode;
 }
 
+/** Top-k run summaries retrieved from the static index. */
+const TOP_STATIC_RUNS = 4;
+
 /** Sources for a structured hit: the query matched it exactly. */
 function structuredSources(services: CatalogService[]): IConversationSource[] {
   return services.map((service) => ({
@@ -75,6 +99,11 @@ function structuredSources(services: CatalogService[]): IConversationSource[] {
     score: 1,
   }));
 }
+
+// State hits have no catalog sources of their own: run facts are cited in the
+// context itself (scenario, run number, execution id). The per-service health
+// rows of the runs table are plain data, so `sources` stays empty on a state
+// route and the answer leans on its own citation lines.
 
 export class AgentService {
   constructor(private readonly conversationManager: ConversationManager) {}
@@ -119,22 +148,33 @@ export class AgentService {
     };
     if (useRag) {
       try {
-        const isServiceQuery = await getIntentClassifier().isServiceQuery(trimmedMessage);
-        if (isServiceQuery) {
-          if (diagnostics.mode === 'vector') {
-            retrieved = await retriever.retrieveSimilar(trimmedMessage, 4);
-            diagnostics.route = 'vector';
-          } else {
-            const structured = await this.retrieveStructured(trimmedMessage, diagnostics);
-            if (structured) {
-              ragContext = structured.context;
-              sources = structured.sources;
-              diagnostics.route = 'structured';
-            } else {
-              // Fallback: invalid query, execution error or an empty result —
-              // the vector branch answers instead (logged for the evaluation).
+        // The static state baseline predates the router: it never routes and
+        // never reads the live state (that is the point of the comparison).
+        if (diagnostics.mode === 'state-static') {
+          ragContext =
+            (await this.retrieveStateStatic(trimmedMessage, diagnostics)) ??
+            retriever.formatContextForPrompt(retrieved);
+          if (diagnostics.stateReadAt) {
+            diagnostics.route = 'state-static';
+          }
+        } else {
+          const isServiceQuery = await getIntentClassifier().isServiceQuery(trimmedMessage);
+          if (isServiceQuery) {
+            if (diagnostics.mode === 'vector') {
               retrieved = await retriever.retrieveSimilar(trimmedMessage, 4);
-              diagnostics.route = 'fallback';
+              diagnostics.route = 'vector';
+            } else {
+              const structured = await this.retrieveStructuredAuto(trimmedMessage, diagnostics);
+              if (structured) {
+                ragContext = structured.context;
+                sources = structured.sources;
+                diagnostics.route = structured.route;
+              } else {
+                // Fallback: invalid query, execution error or an empty result —
+                // the vector branch answers instead (logged for the evaluation).
+                retrieved = await retriever.retrieveSimilar(trimmedMessage, 4);
+                diagnostics.route = 'fallback';
+              }
             }
           }
         }
@@ -222,25 +262,60 @@ export class AgentService {
   }
 
   /**
-   * Run the structured branch: route the question, execute the query over the
-   * catalog and format the result for the prompt.
+   * Run the routed structured/state branch: route the question, then execute
+   * the catalog query (`structured`) or the run-state query (`state`) and
+   * format the result for the prompt.
    *
-   * Returns null when the structured branch cannot answer — the caller then
-   * falls back to the vector branch. The reason is recorded in `diagnostics`.
+   * Returns null when neither branch can answer — the caller then falls back
+   * to the vector branch. The reason is recorded in `diagnostics`.
    */
-  private async retrieveStructured(
+  private async retrieveStructuredAuto(
     message: string,
     diagnostics: RetrievalDiagnostics
-  ): Promise<{ context: string; sources: IConversationSource[] } | null> {
+  ): Promise<{
+    context: string;
+    sources: IConversationSource[];
+    route: 'structured' | 'state';
+  } | null> {
     const catalog = await loadCatalogSafely();
     if (!catalog) {
       diagnostics.fallbackReason = 'the catalog could not be loaded';
       return null;
     }
 
+    // One live read of the twin state per question; it gives the router its
+    // run-state vocabulary and, on a state route, is the state that is
+    // queried. (No cache: the answer must reflect the state at answer time.)
+    const twinState =
+      diagnostics.mode === 'auto' && diagnostics.routerKind !== 'invalid'
+        ? await loadTwinStateSafely()
+        : null;
+
     const outcome = await routeQuery(message, catalog, {
       forceStructured: diagnostics.mode === 'structured',
+      ...(twinState ? { twinState } : {}),
     });
+
+    if (outcome.kind === 'state' && outcome.query) {
+      const state = twinState ?? (await loadTwinStateSafely());
+      if (state) {
+        diagnostics.routerKind = 'state';
+        diagnostics.stateQuery = outcome.query;
+        diagnostics.stateRowCount = state.runs.length + state.runServices.length;
+        diagnostics.suspectStaleCount = state.runs.filter((run) => run.suspectStale).length;
+        diagnostics.stateReadAt = state.readAt;
+        const result = executeStateQuery(outcome.query, state);
+        diagnostics.stateMatchCount = result.matchCount;
+        return {
+          context: formatStateResult(result, outcome.query, state),
+          sources: [],
+          route: 'state',
+        };
+      }
+      diagnostics.routerKind = 'invalid';
+      diagnostics.fallbackReason = 'the twin state could not be loaded';
+      return null;
+    }
 
     if (outcome.kind === 'lookup') {
       diagnostics.routerKind = 'lookup';
@@ -252,18 +327,19 @@ export class AgentService {
       return null;
     }
 
+    const structuredQuery = outcome.query as StructuredQuery;
     diagnostics.routerKind = 'structured';
-    diagnostics.query = outcome.query;
+    diagnostics.query = structuredQuery;
 
-    const result = executeQuery(outcome.query, catalog.services, catalog.scenarios);
-    const aggregate = outcome.query.aggregate?.op ?? 'list';
+    const result = executeQuery(structuredQuery, catalog.services, catalog.scenarios);
+    const aggregate = structuredQuery.aggregate?.op ?? 'list';
 
     let relaxations: Relaxation[] = [];
     if (result.matchCount === 0) {
       diagnostics.emptyResult = true;
       // An empty result from several conditions is often an over-strict reading
       // of the question: show what each one-condition relaxation matches.
-      relaxations = relaxEmptyQuery(outcome.query, catalog.services, catalog.scenarios);
+      relaxations = relaxEmptyQuery(structuredQuery, catalog.services, catalog.scenarios);
       diagnostics.relaxed = relaxations.length > 0;
       // A list or count over an empty set has a well-defined answer ("none"
       // / 0); a min/max does not, so that case falls back to the vector branch.
@@ -273,10 +349,55 @@ export class AgentService {
       }
     }
 
-    const context = formatStructuredResult(result, outcome.query);
+    const context = formatStructuredResult(result, structuredQuery);
     return {
       context: diagnostics.relaxed ? `${context}\n\n${formatRelaxations(relaxations)}` : context,
       sources: structuredSources(result.services),
+      route: 'structured',
     };
+  }
+
+  /**
+   * The evaluation-only static baseline: the top-k run summaries from the
+   * snapshot index (built once, §4.4), embedded-side similarity only — no
+   * live read of MongoDB.
+   */
+  private async retrieveStateStatic(
+    message: string,
+    diagnostics: RetrievalDiagnostics
+  ): Promise<string | null> {
+    try {
+      const { entries, builtAt } = await retrieveStaticRuns(
+        message,
+        getLLMGateway(),
+        TOP_STATIC_RUNS
+      );
+      if (builtAt === null) {
+        diagnostics.fallbackReason = 'the static run index has not been built yet';
+        return null;
+      }
+      diagnostics.stateReadAt = builtAt;
+      const lines = [
+        `Twin state from the static index (built ${builtAt}) — NOT read live: the facts below were`,
+        'indexed once and may be out of date. Say when the snapshot was built, and say you cannot',
+        'know whether anything changed since.',
+        '',
+      ];
+      if (entries.length === 0) {
+        lines.push('No run summaries were retrieved from the static index.');
+      } else {
+        lines.push(
+          ...entries.map(
+            (entry, index) => `[${index + 1}] (score=${entry.score.toFixed(3)})\n${entry.summary}`
+          )
+        );
+      }
+      return lines.join('\n');
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      logger.warn('Static state retrieval failed; falling back', { error: reason });
+      diagnostics.fallbackReason = `the static run index could not be read: ${reason}`;
+      return null;
+    }
   }
 }
