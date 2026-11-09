@@ -821,6 +821,8 @@ export const STATE_MAPPING_RULES = [
   '- "each run / per run / for every service" -> groupBy the field named in the question.',
   '- An "or" condition -> "whereAny"; a negation ("never", "not", "no completion") -> "not": true',
   '  on that predicate.',
+  '- If you set a predicate on service / up / availability / errorRate / requestRate / latencyP95Ms,',
+  '  table "runServices" is understood automatically (leaving table unset is fine).',
   '- Attacker addresses are data: an IP such as 10.244.0.99 is a normal "contains" value.',
 ].join('\n');
 

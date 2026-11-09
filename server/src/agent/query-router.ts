@@ -359,7 +359,24 @@ export function resolveStateQuery(
   catalog: Catalog,
   state: TwinState
 ): { ok: true; query: StateQuery } | { ok: false; reason: string } {
-  const table = output.table ?? 'runs';
+  let table: StateQuery['table'] = output.table ?? 'runs';
+
+  // Models phrasing a per-service question often leave table = "runs" and put
+  // the predicate on the service's fields. The fields only runServices knows
+  // identify that reading; correct the table then (as with an informal
+  // scenario name) instead of rejecting a resolvable query.
+  const serviceOnlyFields = new Set(
+    RUN_SERVICE_FIELDS.filter((field) => !RUN_FIELDS.includes(field as never))
+  );
+  const referenced = [...(output.where ?? []), ...(output.whereAny ?? []).flat()].map(
+    (predicate) => predicate.field
+  );
+  if (output.groupBy) referenced.push(output.groupBy);
+  if (output.aggregate?.field) referenced.push(output.aggregate.field);
+  if (table === 'runs' && referenced.some((field) => serviceOnlyFields.has(field as never))) {
+    table = 'runServices';
+  }
+
   let scenario: string | undefined;
 
   if (output.scenario) {
@@ -434,7 +451,7 @@ export function resolveStateQuery(
   }
 
   const query: StateQuery = {
-    ...(output.table ? { table: output.table } : {}),
+    ...(table ? { table } : {}),
     ...(scenario ? { scenario } : {}),
     ...(output.select ? { select: output.select } : {}),
     ...(output.runNumber ? { runNumber: output.runNumber } : {}),

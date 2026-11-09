@@ -379,6 +379,18 @@ function twinState(): TwinState {
         requestRate: 3,
         latencyP95Ms: 90,
       },
+      {
+        scenario: DEMO,
+        runId: 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0',
+        runNumber: 2,
+        service: 'CI-SIM',
+        status: 'completed',
+        up: false,
+        availability: 0.42,
+        errorRate: 0.5,
+        requestRate: 8,
+        latencyP95Ms: 250,
+      },
     ],
   };
 }
@@ -482,6 +494,26 @@ describe('routeQuery: state kind', () => {
     });
     expect(outcome.kind).toBe('invalid');
     expect(outcome.reason).toContain('run state');
+  });
+
+  it('corrects the table to runServices when a service-only field is referenced', async () => {
+    const outcome = await routeQuery('Was CI-SIM up in the failed demo run?', CATALOG, {
+      twinState: twinState(),
+      chatJson: stubChatJson({
+        kind: 'state',
+        state: {
+          where: [
+            { field: 'service', op: 'eq', value: 'CI-SIM' },
+            { field: 'up', op: 'eq', value: 'false' },
+          ],
+          whereAny: [],
+        },
+      }),
+    });
+    expect(outcome.kind).toBe('state');
+    const query = outcome.query as StateQuery;
+    expect(query.table).toBe('runServices');
+    expect(query.where.map((p) => p.field)).toEqual(['service', 'up']);
   });
 
   it('rejects min/max on a non-numeric state field', async () => {
