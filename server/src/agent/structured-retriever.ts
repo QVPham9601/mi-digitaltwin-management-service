@@ -39,14 +39,32 @@ export const QUERY_FIELDS = [
 ] as const;
 export type QueryField = (typeof QUERY_FIELDS)[number];
 
-export const QUERY_OPS = ['eq', 'ne', 'in', 'contains', 'lt', 'lte', 'gt', 'gte'] as const;
+export const QUERY_OPS = [
+  'eq',
+  'ne',
+  'in',
+  'contains',
+  'lt',
+  'lte',
+  'gt',
+  'gte',
+  'sizeEq',
+  'sizeGte',
+  'sizeLte',
+] as const;
 export type QueryOp = (typeof QUERY_OPS)[number];
 
-export const AGGREGATE_OPS = ['list', 'count', 'min', 'max'] as const;
+export const AGGREGATE_OPS = ['list', 'count', 'min', 'max', 'rank'] as const;
 export type AggregateOp = (typeof AGGREGATE_OPS)[number];
 
 /** Fields whose value is a number (the only ones min/max can be applied to). */
 export const NUMERIC_FIELDS: QueryField[] = ['trl.current', 'trl.expected'];
+
+/** List-valued fields (the size operators and a rank by size apply to them). */
+export const LIST_FIELDS: QueryField[] = ['potentialUseCases', 'standards'];
+
+/** Operators comparing the number of entries of a list field. */
+export const SIZE_OPS: QueryOp[] = ['sizeEq', 'sizeGte', 'sizeLte'];
 
 export const predicateSchema = z.object({
   field: z.enum(QUERY_FIELDS),
@@ -59,7 +77,7 @@ export type Predicate = z.infer<typeof predicateSchema>;
 
 export const aggregateSchema = z.object({
   op: z.enum(AGGREGATE_OPS),
-  /** Required for min/max — the numeric field to compare. */
+  /** Required for min/max (a numeric field) and rank (numeric, or a list field ranked by size). */
   field: z.enum(QUERY_FIELDS).optional(),
 });
 export type AggregateSpec = z.infer<typeof aggregateSchema>;
@@ -487,6 +505,8 @@ export interface StructuredResult {
   value?: number | string | null;
   /** The services holding the aggregate value (min/max). */
   valueServices?: string[];
+  /** rank: the matching services ordered by the ranked value, highest first. */
+  ranking?: { shortName: string; value: number }[];
   /** The group key(s) with the most members — answers "which provider has most…". */
   topGroupKeys?: string[];
   topGroupCount?: number;
@@ -599,6 +619,19 @@ export function matchesPredicate(service: CatalogService, predicate: Predicate):
     case 'gte':
       outcome = compareNumeric(actual, predicate.value, predicate.op);
       break;
+    case 'sizeEq':
+    case 'sizeGte':
+    case 'sizeLte': {
+      const size = Array.isArray(actual) ? actual.length : 0;
+      const expected = Number(predicate.value);
+      outcome =
+        predicate.op === 'sizeEq'
+          ? size === expected
+          : predicate.op === 'sizeGte'
+            ? size >= expected
+            : size <= expected;
+      break;
+    }
     default:
       outcome = false;
   }
@@ -711,8 +744,115 @@ export function executeQuery(
       .map((service) => service.shortName);
     return result;
   }
+  if (aggregate.op === 'rank' && aggregate.field) {
+    result.ranking = rows
+      .map((service) => ({
+        shortName: service.shortName,
+        value: rankValue(service, aggregate.field!),
+      }))
+      .sort((a, b) => b.value - a.value || a.shortName.localeCompare(b.shortName));
+    return result;
+  }
 
   return result;
+}
+
+/** The value a rank orders by: a number field, or the size of a list field. */
+function rankValue(service: CatalogService, field: QueryField): number {
+  const value = FIELD_ACCESSORS[field](service);
+  if (Array.isArray(value)) {
+    return value.length;
+  }
+  return typeof value === 'number' ? value : 0;
+}
+
+/** One way to relax an empty query: the query without one of its conditions. */
+export interface Relaxation {
+  dropped: string;
+  matchCount: number;
+  services: string[];
+}
+
+/**
+ * For a query that matched nothing, re-run it without each of its conditions
+ * (each `where` predicate, the `whereAny` disjunction, the scenario filter).
+ * An empty result is often a query stricter than the question (an "or" written
+ * as an "and", an extra filter), so the answer should not be a bare "none".
+ * Returns the relaxations that match something, fewest matches first.
+ */
+export function relaxEmptyQuery(
+  query: StructuredQuery,
+  services: CatalogService[],
+  scenarios: CatalogScenario[]
+): Relaxation[] {
+  const where = query.where ?? [];
+  const whereAny = query.whereAny ?? [];
+  const candidates: { dropped: string; query: StructuredQuery }[] = where.map(
+    (predicate, index) => ({
+      dropped: formatPredicate(predicate),
+      query: { ...query, where: where.filter((_, other) => other !== index) },
+    })
+  );
+  if (whereAny.length > 0) {
+    candidates.push({
+      dropped: `any of (${whereAny.map((group) => group.map(formatPredicate).join(' AND ')).join(' | ')})`,
+      query: { ...query, whereAny: [] },
+    });
+  }
+  if (query.scenario) {
+    candidates.push({
+      dropped: `in scenario "${query.scenario}"`,
+      query: { ...query, scenario: undefined },
+    });
+  }
+  if (query.notInScenario) {
+    candidates.push({
+      dropped: `not in scenario "${query.notInScenario}"`,
+      query: { ...query, notInScenario: undefined },
+    });
+  }
+  if (candidates.length < 2) {
+    return [];
+  }
+  return candidates
+    .map(({ dropped, query: relaxed }) => {
+      const result = executeQuery(
+        { ...relaxed, aggregate: undefined, groupBy: undefined },
+        services,
+        scenarios
+      );
+      return {
+        dropped,
+        matchCount: result.matchCount,
+        services: result.services.map((s) => s.shortName),
+      };
+    })
+    .filter((relaxation) => relaxation.matchCount > 0)
+    .sort((a, b) => a.matchCount - b.matchCount);
+}
+
+const RELAXATIONS_SHOWN = 4;
+const RELAXED_SERVICES_SHOWN = 8;
+
+/** The relaxations of an empty query, for the prompt. */
+export function formatRelaxations(relaxations: Relaxation[]): string {
+  const lines = [
+    'No service satisfies all conditions of this query. The query may be stricter than the',
+    'question (e.g. an "or" read as an "and", or an extra filter). Do not answer only "none":',
+    'say that no service meets every condition as interpreted, then report what matches when one',
+    'condition is dropped, and ask the user which reading they meant if it matters.',
+    '',
+    'Matches with one condition dropped:',
+  ];
+  for (const relaxation of relaxations.slice(0, RELAXATIONS_SHOWN)) {
+    const shown = relaxation.services.slice(0, RELAXED_SERVICES_SHOWN).join(', ');
+    const more =
+      relaxation.matchCount > RELAXED_SERVICES_SHOWN
+        ? ` … (${relaxation.matchCount - RELAXED_SERVICES_SHOWN} more)`
+        : '';
+    lines.push(`- without [${relaxation.dropped}]: ${relaxation.matchCount} — ${shown}${more}`);
+  }
+  return lines.join('\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -766,6 +906,9 @@ function serviceDetailLines(
   withDescription: boolean
 ): string {
   const used = new Set((query.where ?? []).map((predicate) => predicate.field));
+  if (query.aggregate?.field) {
+    used.add(query.aggregate.field);
+  }
   const lines: string[] = [];
   lines.push(`provider: ${service.provider}`);
   if (service.category) {
@@ -833,6 +976,16 @@ export function formatStructuredResult(result: StructuredResult, query: Structur
         lines.push(serviceDetailLines(service, query, true));
       });
     }
+    return lines.join('\n');
+  }
+
+  if (query.aggregate?.op === 'rank' && result.ranking) {
+    const field = query.aggregate.field ?? '';
+    const unit = LIST_FIELDS.includes(field as QueryField) ? `number of ${field}` : field;
+    lines.push(`Result: ${result.matchCount} services ranked by ${unit}, highest first:`);
+    result.ranking.forEach((entry, index) => {
+      lines.push(`${index + 1}. ${entry.shortName}: ${entry.value}`);
+    });
     return lines.join('\n');
   }
 

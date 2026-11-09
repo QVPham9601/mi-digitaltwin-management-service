@@ -4,7 +4,9 @@ import { logger } from '../utils/logger.js';
 import type { ChatMessage } from './types.js';
 import {
   AGGREGATE_OPS,
+  LIST_FIELDS,
   NUMERIC_FIELDS,
+  SIZE_OPS,
   QUERY_FIELDS,
   QUERY_OPS,
   aggregateSchema,
@@ -94,7 +96,9 @@ const OPERATORS = `Operators: ${QUERY_OPS.join(', ')}.
 - eq / ne: equality (ne = not equal).
 - in: the value is a list of accepted values.
 - contains: the field contains the value (list membership or substring).
-- lt / lte / gt / gte: numeric comparison, only on trl.current or trl.expected.`;
+- lt / lte / gt / gte: numeric comparison, only on trl.current or trl.expected.
+- sizeEq / sizeGte / sizeLte: compare the NUMBER of entries of a list field (standards,
+  potentialUseCases) with a number, e.g. "at least two standards" -> standards sizeGte 2.`;
 
 const MAPPING_RULES = [
   '- "partner infrastructure" means license = "N/A (Partner Infrastructure)".',
@@ -102,6 +106,8 @@ const MAPPING_RULES = [
   '- Negation ("not", "excluding", "other than", "apart from") -> set "not": true on that predicate.',
   '- "how many" -> aggregate op "count"; "which/who/what" over a set -> "list".',
   '- "lowest/highest/least/most" -> "min"/"max" with the numeric field (trl.current / trl.expected).',
+  '- "rank", "top N", "order by" -> aggregate op "rank" with the field: a numeric field, or a list',
+  '  field (standards, potentialUseCases) to rank by its number of entries.',
   '- "each", "per", "for every" -> groupBy the field named in the question.',
   '- To keep only some group keys (e.g. keys that share a prefix), set groupByPrefix.',
   '- Which services a deployment scenario contains is answered ONLY with "scenario" (or',
@@ -193,6 +199,16 @@ function resolvePredicate(
   vocabulary: CatalogVocabulary
 ): { ok: true; predicate: Predicate } | { ok: false; reason: string } {
   const field = predicate.field;
+  if (SIZE_OPS.includes(predicate.op)) {
+    const value = Number(Array.isArray(predicate.value) ? predicate.value[0] : predicate.value);
+    if (!LIST_FIELDS.includes(field)) {
+      return { ok: false, reason: `operator ${predicate.op} is only valid on a list field` };
+    }
+    if (!Number.isInteger(value) || value < 0) {
+      return { ok: false, reason: `operator ${predicate.op} needs a whole number` };
+    }
+    return { ok: true, predicate: { ...predicate, value } };
+  }
   const numeric = NUMERIC_FIELDS.includes(field);
   const comparison = ['lt', 'lte', 'gt', 'gte'].includes(predicate.op);
   // Numeric fields accept the comparisons plus exact (in)equality ("a TRL of 4").
@@ -324,6 +340,12 @@ export function resolveQuery(
         ok: false,
         reason: `aggregate ${aggregate.op} needs a numeric field (trl.current / trl.expected)`,
       };
+    }
+  }
+  if (aggregate?.op === 'rank') {
+    const field = aggregate.field;
+    if (!field || !(NUMERIC_FIELDS.includes(field) || LIST_FIELDS.includes(field))) {
+      return { ok: false, reason: 'aggregate rank needs a numeric field or a list field' };
     }
   }
 

@@ -12,9 +12,12 @@ import { env } from '../config/env.js';
 import { routeQuery } from './query-router.js';
 import {
   executeQuery,
+  formatRelaxations,
   formatStructuredResult,
   loadCatalogSafely,
+  relaxEmptyQuery,
   type CatalogService,
+  type Relaxation,
 } from './structured-retriever.js';
 import type { ChatMessage } from './types.js';
 
@@ -36,6 +39,8 @@ export interface RetrievalDiagnostics {
   routerKind?: 'lookup' | 'structured' | 'invalid';
   /** Why the structured branch was not used. */
   fallbackReason?: string;
+  /** The structured query matched nothing and the prompt got its relaxations instead of "none". */
+  relaxed?: boolean;
   /** The structured query that was executed. */
   query?: unknown;
   /** True when the structured query matched no service. */
@@ -253,18 +258,24 @@ export class AgentService {
     const result = executeQuery(outcome.query, catalog.services, catalog.scenarios);
     const aggregate = outcome.query.aggregate?.op ?? 'list';
 
+    let relaxations: Relaxation[] = [];
     if (result.matchCount === 0) {
       diagnostics.emptyResult = true;
+      // An empty result from several conditions is often an over-strict reading
+      // of the question: show what each one-condition relaxation matches.
+      relaxations = relaxEmptyQuery(outcome.query, catalog.services, catalog.scenarios);
+      diagnostics.relaxed = relaxations.length > 0;
       // A list or count over an empty set has a well-defined answer ("none"
       // / 0); a min/max does not, so that case falls back to the vector branch.
-      if (aggregate === 'min' || aggregate === 'max') {
+      if (!diagnostics.relaxed && (aggregate === 'min' || aggregate === 'max')) {
         diagnostics.fallbackReason = 'the query matched no service';
         return null;
       }
     }
 
+    const context = formatStructuredResult(result, outcome.query);
     return {
-      context: formatStructuredResult(result, outcome.query),
+      context: diagnostics.relaxed ? `${context}\n\n${formatRelaxations(relaxations)}` : context,
       sources: structuredSources(result.services),
     };
   }

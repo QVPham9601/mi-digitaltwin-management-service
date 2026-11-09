@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 import {
   buildVocabulary,
   executeQuery,
+  formatRelaxations,
   formatStructuredResult,
+  relaxEmptyQuery,
   resolveScenarioTitle,
   scenarioAliases,
   resolveVocabularyValue,
@@ -629,5 +631,95 @@ describe('the executor agrees with the independent Python ground truth', () => {
     } else {
       throw new Error(`unknown expected type for ${id}`);
     }
+  });
+});
+
+describe('list sizes and ranking', () => {
+  const WITH_STANDARDS = [
+    makeService({ shortName: 'CSAM', standards: ['ISO/IEC 15408', 'EUCC', 'AI Act'] }),
+    makeService({ shortName: 'SECINTERP', standards: ['IEC 62443-4-2', 'IEC 62351'] }),
+    makeService({ shortName: 'SECSAC', standards: ['OSCAL'] }),
+    makeService({ shortName: 'SECVDR', standards: [] }),
+  ];
+
+  it('compares the number of entries of a list field', () => {
+    const atLeastTwo = executeQuery(
+      query({ where: [{ field: 'standards', op: 'sizeGte', value: 2 }] }),
+      WITH_STANDARDS,
+      []
+    );
+    expect(names(atLeastTwo)).toEqual(['CSAM', 'SECINTERP']);
+    const none = executeQuery(
+      query({ where: [{ field: 'standards', op: 'sizeEq', value: 0 }] }),
+      WITH_STANDARDS,
+      []
+    );
+    expect(names(none)).toEqual(['SECVDR']);
+    const atMostOne = executeQuery(
+      query({ where: [{ field: 'standards', op: 'sizeLte', value: 1 }] }),
+      WITH_STANDARDS,
+      []
+    );
+    expect(names(atMostOne)).toEqual(['SECSAC', 'SECVDR']);
+  });
+
+  it('ranks by the size of a list field, highest first', () => {
+    const q = query({ aggregate: { op: 'rank', field: 'standards' } });
+    const result = executeQuery(q, WITH_STANDARDS, []);
+    expect(result.ranking).toEqual([
+      { shortName: 'CSAM', value: 3 },
+      { shortName: 'SECINTERP', value: 2 },
+      { shortName: 'SECSAC', value: 1 },
+      { shortName: 'SECVDR', value: 0 },
+    ]);
+    const text = formatStructuredResult(result, q);
+    expect(text).toContain('ranked by number of standards');
+    expect(text).toContain('1. CSAM: 3');
+  });
+
+  it('ranks by a numeric field', () => {
+    const result = executeQuery(
+      query({ aggregate: { op: 'rank', field: 'trl.current' } }),
+      SERVICES,
+      SCENARIOS
+    );
+    expect(result.ranking?.[0]).toEqual({ shortName: 'KAFKA', value: 9 });
+  });
+});
+
+describe('relaxing an empty query', () => {
+  it('reports what matches when each condition is dropped', () => {
+    // "Monitor OR Attack" written as an AND: empty.
+    const q = query({
+      where: [
+        { field: 'category', op: 'eq', value: 'Monitor' },
+        { field: 'category', op: 'eq', value: 'Attack' },
+      ],
+    });
+    expect(executeQuery(q, SERVICES, SCENARIOS).matchCount).toBe(0);
+    const relaxations = relaxEmptyQuery(q, SERVICES, SCENARIOS);
+    expect(relaxations.map((r) => [r.dropped, r.services])).toEqual([
+      ['category eq Monitor', ['MAG']],
+      ['category eq Attack', ['MMT-PROBE', 'SECANOD']],
+    ]);
+    const text = formatRelaxations(relaxations);
+    expect(text).toContain('Do not answer only "none"');
+    expect(text).toContain('without [category eq Attack]: 2 — MMT-PROBE, SECANOD');
+  });
+
+  it('treats the whereAny disjunction and the scenario as conditions', () => {
+    const q = query({
+      scenario: 'CI attack → MMT detection → AI4SOAR block',
+      whereAny: [[{ field: 'category', op: 'eq', value: 'Ops Services' }]],
+      where: [{ field: 'uiType', op: 'eq', value: 'web' }],
+    });
+    const dropped = relaxEmptyQuery(q, SERVICES, SCENARIOS).map((r) => r.dropped);
+    expect(dropped).toContain('any of (category eq Ops Services)');
+    expect(dropped).toContain('in scenario "CI attack → MMT detection → AI4SOAR block"');
+  });
+
+  it('does not relax a single-condition query', () => {
+    const q = query({ where: [{ field: 'category', op: 'eq', value: 'Reaction' }] });
+    expect(relaxEmptyQuery(q, SERVICES, SCENARIOS)).toEqual([]);
   });
 });

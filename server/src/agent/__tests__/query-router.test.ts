@@ -276,3 +276,36 @@ describe('resolveQuery', () => {
     }
   });
 });
+
+describe('resolveQuery: list sizes and ranking', () => {
+  it('accepts a size operator on a list field with a whole number', () => {
+    const resolved = resolveQuery(
+      { kind: 'structured', where: [{ field: 'standards', op: 'sizeGte', value: '2' }] },
+      CATALOG
+    );
+    expect(resolved.ok && resolved.query.where[0]).toEqual({
+      field: 'standards',
+      op: 'sizeGte',
+      value: 2,
+    });
+  });
+
+  it('rejects a size operator on a scalar field', () => {
+    const resolved = resolveQuery(
+      { kind: 'structured', where: [{ field: 'provider', op: 'sizeGte', value: 2 }] },
+      CATALOG
+    );
+    expect(resolved.ok).toBe(false);
+  });
+
+  it('accepts rank on a list or numeric field and rejects it on a string field', () => {
+    const ok = (field: string) =>
+      resolveQuery(
+        { kind: 'structured', where: [], aggregate: { op: 'rank', field } } as never,
+        CATALOG
+      ).ok;
+    expect(ok('standards')).toBe(true);
+    expect(ok('trl.current')).toBe(true);
+    expect(ok('provider')).toBe(false);
+  });
+});
