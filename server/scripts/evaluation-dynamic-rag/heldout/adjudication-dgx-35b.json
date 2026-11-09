@@ -1,0 +1,41 @@
+{
+  "run": "results/heldout-dgx-35b.jsonl",
+  "manual": {
+    "H28": {
+      "A": [false, false, false],
+      "C": [false, false, false],
+      "why": "all say there is no scenario information, except C rep3 which says 'no' from a count of 1 per service, not from the empty DDoS scenario"
+    },
+    "H29": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all say no tool lists ISO/IEC 27001"
+    },
+    "H30": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all say none (A rep2/3 then discuss AST-DEDISRV but keep the 'no')"
+    },
+    "H31": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all describe adversarial AI attack simulation for operations"
+    }
+  },
+  "overrides_complete_but_extra_names": {
+    "correct": [
+      "H09 C rep1-3",
+      "H14 A rep1-3",
+      "H15 C rep1-3",
+      "H19 A rep1-3",
+      "H26 A rep1-3",
+      "H33 A rep1-2"
+    ],
+    "why_correct": "the extra services are named only to be excluded or compared (KAFKA excluded, lower TRL, not pure hardware, fewer standards, HTTP-SIM is a target)",
+    "wrong": [
+      "H06 A rep1-3 (PPC-EMOB named as a 5G testbed)",
+      "H27 A rep1-3 (third place SECASSURE4AI with 0 standards instead of the 1-standard tie)",
+      "H33 A rep3 (HTTP-SIM listed as a fourth monitoring tool)"
+    ]
+  }
+}

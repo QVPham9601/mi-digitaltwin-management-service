@@ -305,3 +305,33 @@ predicate, or fall back to vector) before answering "none".
 **Threats.** Single author for questions and adjudication; 3 reps of the same
 model are not independent samples (question-level majority reported too); the
 14B only; the A and C prompts differ in context format.
+
+## Addendum (2026-11-09): held-out question set, DGX 35B
+
+Same protocol, frozen code (`server/src` identical to `heldout-freeze`), same model
+as the earlier DGX runs (`montimage-dgx-spark` = Qwen3.6-35B-A3B NVFP4; the DGX
+moved to 192.168.0.132 after a restart, passed as a per-process `CHAT_BASE_URL`).
+210 answers, no errors. Manual decisions in `heldout/adjudication-dgx-35b.json`.
+
+| subset                      | 35B A vector           | 35B C routed               | 14B C routed |
+| --------------------------- | ---------------------- | -------------------------- | ------------ |
+| structured (30 x 3)         | 39/90 (43%, CI 34–54%) | **68/90 (76%, CI 66–83%)** | 56/90 (62%)  |
+| — without the 3 paraphrases | 33/81 (41%)            | 60/81 (74%)                | 47/81 (58%)  |
+| lookup (5 x 3)              | 14/15 (93%)            | 13/15 (87%)                | 12/15 (80%)  |
+| all 105                     | 53/105 (50%)           | 81/105 (77%)               | 68/105 (65%) |
+
+- A vs C on structured, 35B: C-only correct 35, A-only 6, McNemar exact p = 5e-6.
+  Majority-correct structured questions: A 13/30, C 23/30.
+- 14B vs 35B, both C: 35B-only correct 19, 14B-only 7, p = 0.029.
+- Old set to held-out, C: 35B 92% → 76%, 14B 90% → 62%. The larger model
+  generalises better: most 14B planning errors (OR written as AND, invented filters)
+  are gone in the 35B (H09, H22, H25 now 3/3).
+- Remaining 35B failures (majority wrong): H07, H13 (reads "security services" as the
+  Attack/Monitor/Reaction/Target categories; the wording is ambiguous, so this is
+  partly a question flaw), H18 (filters type = Hardware instead of partner
+  infrastructure), H23 (adds a toolbox filter), H26, H27 (no list-length operation),
+  H28 (no scenario list in context).
+- Confident "nothing matches" when the answer is not empty: 10 C answers for the 35B
+  (H07, H23, H26, H33), 15 for the 14B. The empty-result check proposed above is still
+  needed with the larger model.
+- Vector retrieval stays ahead on single-service lookups (14/15 vs 13/15, not significant).

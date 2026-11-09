@@ -7,7 +7,7 @@ R=$PWD/scripts/evaluation-dynamic-rag/results
 OUT=$R/heldout-dgx-35b.jsonl
 PW=$(grep -E '^ADMIN_PASSWORD=' .env | cut -d= -f2-)
 for pass in $(seq 1 30); do
-  until curl -s -m 5 -o /dev/null -f http://192.168.0.127:8001/v1/models; do
+  until curl -s -m 5 -o /dev/null -f "${DGX_URL:-http://192.168.0.132:8001/v1}/models"; do
     echo "$(date +%H:%M) DGX unreachable, waiting"; sleep 60
   done
   echo "$(date +%H:%M) pass $pass"
