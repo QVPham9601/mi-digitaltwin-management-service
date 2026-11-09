@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "author": "",
+    "frozenCommit": "3b8ac59 (tag heldout2-freeze)",
+    "writtenOn": "",
+    "minutesSpent": null,
+    "openedResultsOrReport": false
+  },
+  "questions": [
+    {
+      "id": "N01",
+      "category": "or",
+      "question": "",
+      "expectedRoute": "structured",
+      "myAnswer": "",
+      "note": ""
+    },
+    {
+      "id": "N02",
+      "category": "at-least",
+      "question": "",
+      "expectedRoute": "structured",
+      "myAnswer": "",
+      "note": ""
+    },
+    {
+      "id": "N03",
+      "category": "no-answer",
+      "question": "",
+      "expectedRoute": "structured",
+      "myAnswer": "none",
+      "note": ""
+    }
+  ]
+}
