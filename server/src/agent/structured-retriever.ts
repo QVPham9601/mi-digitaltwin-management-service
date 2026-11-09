@@ -837,12 +837,13 @@ const RELAXED_SERVICES_SHOWN = 8;
 /** The relaxations of an empty query, for the prompt. */
 export function formatRelaxations(relaxations: Relaxation[]): string {
   const lines = [
-    'No service satisfies all conditions of this query. The query may be stricter than the',
-    'question (e.g. an "or" read as an "and", or an extra filter). Do not answer only "none":',
-    'say that no service meets every condition as interpreted, then report what matches when one',
-    'condition is dropped, and ask the user which reading they meant if it matters.',
+    'Result as interpreted: NO service meets every condition of this query.',
+    'Start the answer with that result. The services below are near misses, NOT answers: each',
+    'one fails the condition shown in brackets. Mention them only as services that do not meet',
+    'the question. The query may be stricter than the question (e.g. an "or" read as an "and",',
+    'or an extra filter): if so, say which reading was used and ask which one the user meant.',
     '',
-    'Matches with one condition dropped:',
+    'Near misses (NOT answers):',
   ];
   for (const relaxation of relaxations.slice(0, RELAXATIONS_SHOWN)) {
     const shown = relaxation.services.slice(0, RELAXED_SERVICES_SHOWN).join(', ');
@@ -850,7 +851,7 @@ export function formatRelaxations(relaxations: Relaxation[]): string {
       relaxation.matchCount > RELAXED_SERVICES_SHOWN
         ? ` … (${relaxation.matchCount - RELAXED_SERVICES_SHOWN} more)`
         : '';
-    lines.push(`- without [${relaxation.dropped}]: ${relaxation.matchCount} — ${shown}${more}`);
+    lines.push(`- fail [${relaxation.dropped}]: ${relaxation.matchCount} — ${shown}${more}`);
   }
   return lines.join('\n');
 }

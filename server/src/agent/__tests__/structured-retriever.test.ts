@@ -703,8 +703,9 @@ describe('relaxing an empty query', () => {
       ['category eq Attack', ['MMT-PROBE', 'SECANOD']],
     ]);
     const text = formatRelaxations(relaxations);
-    expect(text).toContain('Do not answer only "none"');
-    expect(text).toContain('without [category eq Attack]: 2 — MMT-PROBE, SECANOD');
+    expect(text).toContain('NO service meets every condition');
+    expect(text).toContain('Near misses (NOT answers)');
+    expect(text).toContain('fail [category eq Attack]: 2 — MMT-PROBE, SECANOD');
   });
 
   it('treats the whereAny disjunction and the scenario as conditions', () => {
