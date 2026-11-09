@@ -1,0 +1,143 @@
+#!/usr/bin/env node
+/**
+ * Live-state evaluation runner: asks each question through POST /api/agent/chat
+ * under a retrieval condition and records answer, retrieval route and latency.
+ *
+ *   ADMIN_PASSWORD=… node server/scripts/evaluation-live-state/run-live-state-eval.mjs \
+ *     --out=results/t0.jsonl [--conditions=V,S,T] [--reps=1 \
+ *     [--questions=../evaluation-live-state/questions/questions-live-state.json] [--ids=L01,L02]
+ *
+ * Conditions (EVALUATION-PROTOCOL.md): V = vector (top-k 4, the catalog-only
+ * floor), S = state-static (top-k run summaries from the snapshot index built
+ * at t0), T = auto (routed; the state route reads the twin live).
+ * The server must run with AGENT_EVAL_OPTIONS=true (per-request retrievalMode)
+ * and AGENT_LLM_TITLES=false, against `intact_m1`. Re-running with the same
+ * --out resumes: rows already recorded are skipped. Env: BASE_URL (default
+ * http://127.0.0.1:3100).
+ *
+ * --budget-usd=N (Claude runs): after each answer, read the server's token usage
+ * (GET /api/agent/usage), price it, record the running cost on the row, and stop
+ * once the cost reaches N. A model missing from PRICES stops the run rather than
+ * spending untracked money.
+ */
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { dirname, isAbsolute, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const arg = (n, d) => process.argv.find((a) => a.startsWith(`--${n}=`))?.split('=')[1] ?? d;
+const at = (p) => (isAbsolute(p) ? p : join(HERE, p));
+const BASE = (process.env.BASE_URL ?? 'http://127.0.0.1:3100').replace(/\/+$/, '');
+const OUT = at(arg('out', 'results/run.jsonl'));
+const CONDITIONS = arg('conditions', 'V,S,T').split(',');
+const REPS = Number(arg('reps', '1'));
+const IDS = arg('ids', '') ? new Set(arg('ids', '').split(',')) : null;
+const MODE = { V: 'vector', S: 'state-static', T: 'auto' };
+const BUDGET = arg('budget-usd', '') ? Number(arg('budget-usd', '')) : null;
+// USD per million tokens (input, output), Claude API list prices. Cache reads
+// cost 0.1x input and cache writes 1.25x input.
+const PRICES = {
+  'claude-fable-5-1': [10, 50],
+  'claude-opus-5-5': [4, 20],
+  'claude-sonnet-5-5': [2, 10],
+  'claude-haiku-5-5': [0.1, 0.5],
+};
+
+const questions = JSON.parse(readFileSync(at(arg('questions', 'questions/questions-live-state.json')), 'utf8'))
+  .filter((q) => !IDS || IDS.has(q.id));
+mkdirSync(dirname(OUT), { recursive: true });
+const done = new Set(
+  existsSync(OUT)
+    ? readFileSync(OUT, 'utf8').trim().split('\n').filter(Boolean)
+        .map((l) => JSON.parse(l)).filter((r) => !r.error).map((r) => `${r.id}|${r.condition}|${r.rep}`)
+    : []
+);
+
+const login = await fetch(`${BASE}/api/auth/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username: process.env.ADMIN_USERNAME ?? 'admin', password: process.env.ADMIN_PASSWORD }),
+});
+const { token } = await login.json();
+if (!token) throw new Error(`login failed (${login.status})`);
+
+/** One chat turn in a new conversation; parses the SSE stream. */
+async function ask(question, retrievalMode) {
+  const t0 = Date.now();
+  const res = await fetch(`${BASE}/api/agent/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ message: question, useRag: true, retrievalMode }),
+  });
+  if (!res.ok || !res.body) throw new Error(`chat ${res.status}: ${await res.text()}`);
+  let buffer = '';
+  let answer = '';
+  let retrieval = null;
+  let sources = [];
+  let firstTokenMs = null;
+  const decoder = new TextDecoder();
+  for await (const chunk of res.body) {
+    buffer += decoder.decode(chunk, { stream: true });
+    const frames = buffer.split('\n\n');
+    buffer = frames.pop() ?? '';
+    for (const frame of frames) {
+      const type = /^event: (.+)$/m.exec(frame)?.[1];
+      const raw = /^data: (.+)$/m.exec(frame)?.[1];
+      if (!type || !raw) continue;
+      const data = JSON.parse(raw);
+      if (type === 'token') {
+        firstTokenMs ??= Date.now() - t0;
+        answer += data.content;
+      } else if (type === 'retrieval') retrieval = data;
+      else if (type === 'sources') sources = (data ?? []).map((s) => s.shortName ?? s.title ?? s);
+      else if (type === 'error') throw new Error(data.message);
+    }
+  }
+  return { answer, retrieval, sources, latencyMs: Date.now() - t0, firstTokenMs };
+}
+
+/** Total cost so far of the Claude calls made by the server (null when not tracked). */
+async function spentUsd() {
+  const res = await fetch(`${BASE}/api/agent/usage`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`usage ${res.status}: ${await res.text()}`);
+  let usd = 0;
+  for (const [model, u] of Object.entries(await res.json())) {
+    const price = PRICES[model];
+    if (!price) throw new Error(`no price for model ${model}: refusing to continue untracked`);
+    const [inp, out] = price;
+    usd += (u.inputTokens * inp + u.outputTokens * out + u.cacheReadTokens * inp * 0.1 + u.cacheWriteTokens * inp * 1.25) / 1e6;
+  }
+  return usd;
+}
+const startUsd = BUDGET === null ? 0 : await spentUsd();
+
+let n = 0;
+let costUsd = 0;
+for (let rep = 1; rep <= REPS; rep++) {
+  for (const condition of CONDITIONS) {
+    for (const q of questions) {
+      // state-static is a run-state baseline: skip it only for questions the
+      // author marked "lookup" (not meaningful in this mode).
+      if (condition === 'S' && q.expectedRoute === 'lookup') continue;
+      if (done.has(`${q.id}|${condition}|${rep}`)) continue;
+      const row = { id: q.id, category: q.category, condition, mode: MODE[condition], rep };
+      try {
+        Object.assign(row, await ask(q.question, MODE[condition]));
+      } catch (error) {
+        row.error = String(error);
+      }
+      if (BUDGET !== null) {
+        costUsd = (await spentUsd()) - startUsd;
+        row.costUsd = Number(costUsd.toFixed(4));
+      }
+      appendFileSync(OUT, `${JSON.stringify(row)}\n`);
+      n++;
+      process.stdout.write(row.error ? 'x' : '.');
+      if (BUDGET !== null && costUsd >= BUDGET) {
+        console.log(`\nBudget reached: $${costUsd.toFixed(2)} >= $${BUDGET} — stopping (re-run to resume).`);
+        process.exit(0);
+      }
+    }
+  }
+}
+console.log(`\n${n} answers → ${OUT}${BUDGET !== null ? ` · cost this run $${costUsd.toFixed(2)}` : ''}`);
