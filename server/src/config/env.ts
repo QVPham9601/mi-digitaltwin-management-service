@@ -68,6 +68,13 @@ const envSchema = z.object({
   // log polling interval, and the quiet gap that closes an incident.
   MONITOR_MODEL: z.string().default(''),
   MONITOR_POLL_MS: z.string().default('2000').transform(Number),
+  // A run still "pending"/"running" with no completion date after this many
+  // milliseconds is flagged `suspectStale` by the state route: its namespace is
+  // almost certainly gone and the record must not be presented as live.
+  AGENT_STALE_RUN_MS: z
+    .string()
+    .default((6 * 60 * 60 * 1000).toString())
+    .transform(Number),
   // Give the triage model the rule's reference MITRE technique (default). 'false'
   // is the ablation: the model must map the MMT cause to ATT&CK on its own.
   MONITOR_TRIAGE_REFERENCE: z
