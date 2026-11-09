@@ -44,10 +44,25 @@ const reports = db.collection('executionreports');
 const changes = db.collection('applychange_m1');
 await changes.createIndex({ step: 1 }, { unique: true });
 
-async function once(step, apply) {
-  const applied = await changes.findOne({ step });
-  if (applied) {
-    console.log(`step ${step}: already applied (${applied.note}) — nothing to do`);
+/**
+ * Apply a step at most once. The marker collection makes this idempotent
+ * across re-runs, but a fresh intact_m1 re-copy (copy-db.sh) keeps an
+ * old marker, so a marker-less DB whose change is already present is
+ * recognised by `present()` and just re-stamped — never applied twice.
+ */
+async function once(step, present, apply) {
+  const marker = await changes.findOne({ step });
+  if (marker) {
+    console.log(`step ${step}: already applied (${marker.note}) — nothing to do`);
+    return;
+  }
+  if (await present()) {
+    await changes.insertOne({
+      step,
+      note: 'already present before this run (fresh copy with an old marker)',
+      appliedAt: new Date(),
+    });
+    console.log(`step ${step}: change already present in the database — marker re-stamped`);
     return;
   }
   const note = await apply();
@@ -56,11 +71,25 @@ async function once(step, apply) {
 }
 
 const APPLY = {
-  1: async () => {
+  1: {
+    present: async () => {
+      const scenario = await scenarios.findOne({ title: SCENARIO_TITLE });
+      return Boolean(
+        scenario?.executions?.some(
+          (execution) =>
+            new Date(execution.executedAt).getTime() === STEP1_EXECUTED_AT.getTime() &&
+            execution.executedBy === EXECUTED_BY
+        )
+      );
+    },
+    apply: async () => {
     const scenario = await scenarios.findOne({ title: SCENARIO_TITLE });
     if (!scenario) throw new Error(`scenario "${SCENARIO_TITLE}" not found in intact_m1`);
     const executedAt = STEP1_EXECUTED_AT;
     const execution = {
+      // Explicit _id: MongoDB does not auto-generate ids for subdocuments
+      // pushed into an array, and the loader/report-join needs the id.
+      _id: new mongoose.Types.ObjectId(),
       executedAt,
       executedBy: EXECUTED_BY,
       status: 'completed',
@@ -78,11 +107,9 @@ const APPLY = {
       observability: true,
     };
     await scenarios.updateOne({ _id: scenario._id }, { $push: { executions: execution } });
-    const updated = await scenarios.findOne({ _id: scenario._id });
-    const stored = updated.executions[updated.executions.length - 1];
     const report = {
       scenarioId: scenario._id,
-      executionId: stored._id,
+      executionId: execution._id,
       scenarioTitle: SCENARIO_TITLE,
       executedBy: EXECUTED_BY,
       namespace: 'step1-failed-run',
@@ -131,12 +158,25 @@ const APPLY = {
     };
     await reports.insertOne(report);
     return 'added closed failed run (CI-SIM up=false, availability 0.42, 37 alerts from 10.244.0.99) with its report';
+    },
   },
 
-  2: async () => {
+  2: {
+    present: async () => {
+      const scenario = await scenarios.findOne({ title: SCENARIO_TITLE });
+      return Boolean(
+        scenario?.executions?.some(
+          (execution) =>
+            new Date(execution.executedAt).getTime() === STEP2_EXECUTED_AT.getTime() &&
+            execution.executedBy === EXECUTED_BY
+        )
+      );
+    },
+    apply: async () => {
     const scenario = await scenarios.findOne({ title: SCENARIO_TITLE });
     if (!scenario) throw new Error(`scenario "${SCENARIO_TITLE}" not found in intact_m1`);
     const execution = {
+      _id: new mongoose.Types.ObjectId(),
       executedAt: STEP2_EXECUTED_AT,
       executedBy: EXECUTED_BY,
       status: 'running',
@@ -154,9 +194,27 @@ const APPLY = {
     };
     await scenarios.updateOne({ _id: scenario._id }, { $push: { executions: execution } });
     return 'added a running run started 2026-11-10T10:00Z with no completedAt';
+    },
   },
 
-  3: async () => {
+  3: {
+    present: async () => {
+      const scenario = await scenarios.findOne({ title: SCENARIO_TITLE });
+      const step1Run = scenario?.executions?.find(
+        (execution) =>
+          new Date(execution.executedAt).getTime() === STEP1_EXECUTED_AT.getTime() &&
+          execution.executedBy === EXECUTED_BY
+      );
+      if (!step1Run) return false;
+      const secanod = (step1Run.deployedServices ?? []).find((s) => s.name === 'secanod');
+      if (secanod?.status === 'failed') return true;
+      const report = await reports.findOne(
+        { scenarioId: scenario._id, executionId: step1Run._id, 'services.name': 'secanod' },
+        { projection: { 'services.$': 1 } }
+      );
+      return report?.services?.[0]?.status === 'failed';
+    },
+    apply: async () => {
     const scenario = await scenarios.findOne({ title: SCENARIO_TITLE });
     if (!scenario) throw new Error(`scenario "${SCENARIO_TITLE}" not found in intact_m1`);
     // The step-1 run: completed at 09:12 the same morning.
@@ -188,9 +246,10 @@ const APPLY = {
       }
     );
     return 'marked SECANOD failed with 3 container restarts in the step-1 run (execution and report)';
+    },
   },
 };
 
-await once(step, APPLY[step]);
+await once(step, APPLY[step].present, APPLY[step].apply);
 
 await mongoose.disconnect();
