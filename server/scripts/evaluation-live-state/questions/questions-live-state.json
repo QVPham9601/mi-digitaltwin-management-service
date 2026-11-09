@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "author": "",
+    "frozenCommit": "",
+    "writtenOn": "",
+    "minutesSpent": null,
+    "openedChangeScriptOrResults": false
+  },
+  "questions": [
+    { "id": "L01", "category": "latest", "question": "", "myAnswer": "", "note": "" },
+    { "id": "L02", "category": "now", "question": "", "myAnswer": "", "note": "" },
+    { "id": "L03", "category": "control", "question": "", "myAnswer": "", "note": "" }
+  ]
+}
