@@ -1,5 +1,5 @@
 {
-  "dumpedAt": "2026-10-22T07:48:18.799Z",
+  "dumpedAt": "2026-11-09T14:12:48.102Z",
   "services": [
     {
       "shortName": "CSAM",
@@ -216,7 +216,9 @@
       "uiType": "web",
       "trlCurrent": 6,
       "trlExpected": 8,
-      "potentialUseCases": ["Target module in the Montimage attack→detect→respond scenario"],
+      "potentialUseCases": [
+        "Target module of the first attack→detect→respond demo (replaced by CI-SIM)"
+      ],
       "repositoryTable": "INTACT_TOOLBOX",
       "standards": [],
       "license": "TBD"
@@ -230,7 +232,9 @@
       "uiType": "web",
       "trlCurrent": 7,
       "trlExpected": 8,
-      "potentialUseCases": ["Monitor module in the Montimage attack→detect→respond scenario"],
+      "potentialUseCases": [
+        "Monitor module of the first attack→detect→respond demo (replaced by SECANOD)"
+      ],
       "repositoryTable": "INTACT_TOOLBOX",
       "standards": [],
       "license": "TBD"

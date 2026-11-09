@@ -411,7 +411,7 @@ const montimageScenarioServices: ServiceSeed[] = [
     categorySlug: 'target',
     provider: 'Montimage (MTI)',
     description:
-      'Packaged HTTP victim workload listening on :8080 (`GET /` → 200). The only workload MAG is allowed to reach in the attack→detect→respond scenario; MMT-Probe is injected as a sidecar in its pod to observe the traffic.',
+      'Packaged HTTP victim workload listening on :8080 (`GET /` → 200). Target of the first version of the attack→detect→respond demo, where MMT-Probe ran as a sidecar in its pod; the current demo targets CI-SIM instead.',
     type: 'Software',
     trl: { current: 6, expected: 8 },
     license: 'TBD',
@@ -429,7 +429,9 @@ const montimageScenarioServices: ServiceSeed[] = [
       },
     ],
     interactsWith: [],
-    potentialUseCases: ['Target module in the Montimage attack→detect→respond scenario'],
+    potentialUseCases: [
+      'Target module of the first attack→detect→respond demo (replaced by CI-SIM)',
+    ],
     repositoryTable: 'INTACT_TOOLBOX',
     dockerImage: 'registry.montimage.eu/montimage-mti/http-sim:v1.0.0',
     deployment: {
@@ -448,7 +450,7 @@ const montimageScenarioServices: ServiceSeed[] = [
     categorySlug: 'monitor',
     provider: 'Montimage (MTI)',
     description:
-      'Montimage Monitoring Tool DPI probe (shipped publicly as the `montimage/mmt` image). Injected as a sidecar sharing the target pod network namespace — requires NET_ADMIN and NET_RAW — configured via `mmt-probe.conf` (libconfig) or the `HOST_INTERFACE` env, and emits security alerts/reports consumed by AI4SOAR.',
+      'Montimage Monitoring Tool DPI probe (shipped publicly as the `montimage/mmt` image). Injected as a sidecar sharing the target pod network namespace — requires NET_ADMIN and NET_RAW — configured via `mmt-probe.conf` (libconfig) or the `HOST_INTERFACE` env, and emits security alerts/reports. It was the monitor of the first version of the attack→detect→respond demo; the current demo uses SECANOD, which embeds mmt-probe with a Kafka output.',
     type: 'Software',
     trl: { current: 7, expected: 8 },
     license: 'TBD',
@@ -466,7 +468,9 @@ const montimageScenarioServices: ServiceSeed[] = [
       },
     ],
     interactsWith: [],
-    potentialUseCases: ['Monitor module in the Montimage attack→detect→respond scenario'],
+    potentialUseCases: [
+      'Monitor module of the first attack→detect→respond demo (replaced by SECANOD)',
+    ],
     repositoryTable: 'INTACT_TOOLBOX',
     dockerImage: 'registry.montimage.eu/montimage-mti/mmt-probe:v1.0.0',
     deployment: {
