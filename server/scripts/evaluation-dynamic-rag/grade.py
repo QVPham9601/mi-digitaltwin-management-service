@@ -17,7 +17,8 @@ from collections import defaultdict
 from pathlib import Path
 
 HERE = Path(__file__).parent
-QS = {q["id"]: q for q in json.loads((HERE / "questions-dynamic-rag.json").read_text())}
+QFILE = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--questions=")), "questions-dynamic-rag.json")
+QS = {q["id"]: q for q in json.loads((HERE / QFILE).read_text())}
 SNAP = json.loads((HERE / "catalog-snapshot.json").read_text())
 NAMES = sorted({s["shortName"] for s in SNAP["services"]}, key=len, reverse=True)
 # Scenario titles name services ("... AI4SOAR block"); quoting a title is not naming a service.
@@ -53,10 +54,20 @@ def grade(q, answer):
     exp, m = q["expected"], mentioned(answer)
     t = exp["type"]
     if t == "set":
-        want = set(exp["value"])
+        want, optional = set(exp["value"]), set(exp.get("optional", []))
         if not want:
             return {"correct": None, "complete": None, "manual": True}
-        return {"complete": want <= m, "correct": want <= m and not (m - want)}
+        return {"complete": want <= m, "correct": want <= m and not (m - want - optional)}
+    if t == "ranking":  # ordered head (e.g. top 2) plus a tie whose members may follow
+        want, optional = exp["value"], set(exp.get("optional", []))
+        first = [min(mm.start() for mm in re.finditer(re.escape(n), answer, re.I)) for n in want if n in m]
+        ok = set(want) <= m
+        return {"complete": ok, "correct": ok and first == sorted(first) and not (m - set(want) - optional)}
+    if t == "labels":
+        ok = all(has_label(answer, x) for x in exp["value"])
+        return {"complete": ok, "correct": ok}
+    if t == "manual":
+        return {"correct": None, "complete": None, "manual": True}
     if t in ("number", "extremum"):
         want = set(exp.get("services", [])) if t == "extremum" else set()
         ok = has_number(answer, exp["value"]) and want <= m
@@ -132,10 +143,10 @@ def main(paths):
                 fb[r["retrieval"].get("fallbackReason", "?")] += 1
         print(f"\nRouter (C): right branch {ok}/{len(routed)}; fallbacks: {dict(fb) or 'none'}")
     if manual:
-        print("\nManual check (empty expected set):")
+        print("\nManual check (empty expected set, or free-text answer):")
         for r in manual:
             print(f"- {r['condition']} {r['id']} rep{r['rep']}: {r['answer'][:220]!r}")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main([a for a in sys.argv[1:] if not a.startswith("--")])

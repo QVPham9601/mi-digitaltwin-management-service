@@ -1,35 +1,268 @@
 {
   "meta": {
-    "author": "",
+    "author": "Quoc-Viet Pham",
     "frozenCommit": "ce280bc (tag heldout-freeze)",
-    "writtenOn": "",
-    "minutesSpent": null,
+    "writtenOn": "05/11/2026",
+    "minutesSpent": 45,
     "openedOldQuestionSet": false
   },
   "questions": [
     {
       "id": "H01",
       "category": "filter",
-      "question": "",
+      "question": "Tell me a service that can be used to simulate a critical infrastructure",
       "expectedRoute": "structured",
-      "myAnswer": "",
-      "note": ""
+      "myAnswer": "CI-SIM (Critical Infrastructure Simulation), provided by Montimage",
+      "note": "Ambiguity: secSIM is also called an assurance-driven simulator, but the dedicated critical-infrastructure simulation entry is CI-SIM."
     },
     {
       "id": "H02",
-      "category": "negation",
-      "question": "",
+      "category": "filter",
+      "question": "Which services come from Tecnalia?",
       "expectedRoute": "structured",
-      "myAnswer": "",
-      "note": ""
+      "myAnswer": "SECINTERP, SECSAC, SECASSURE4AI, SECATTSIM"
     },
     {
       "id": "H03",
+      "category": "filter",
+      "question": "I am looking for tools and services related to the Energy sector, which ones are they?",
+      "expectedRoute": "structured",
+      "myAnswer": "UIH-PROSUMER (Prosumer Cell), SPS-DEVSECOPS (DevSecOps Architecture), PPC-EMOB (E-mobility Testing Facilities), PPC-IIOT (PPC IIoT Lab)"
+    },
+    {
+      "id": "H04",
+      "category": "negation",
+      "question": "List the catalog entries that are not pure software offerings",
+      "expectedRoute": "structured",
+      "myAnswer": "Software/Hardware: ORO-5GLAB, SAVVY-DEVSRV, IDEKO-CNC, PPC-IIOT, AALTO-EDGE5G. Hardware: ORO-3GPP16, ITPAERO-CLUSTER, ITPAERO-CFAA, UIH-PROSUMER, PPC-EMOB, AST-DEDISRV, AALTO-LUMI. (12 entries total)"
+    },
+    {
+      "id": "H05",
+      "category": "negation",
+      "question": "Which services have a license entry other than TBD?",
+      "expectedRoute": "structured",
+      "myAnswer": "KAFKA (Apache-2.0) and the 14 partner infrastructure entries marked 'N/A (Partner Infrastructure)' — ORO-5GLAB, ORO-3GPP16, ITPAERO-CLUSTER, ITPAERO-CFAA, SAVVY-DEVSRV, IDEKO-CNC, UIH-PROSUMER, SPS-DEVSECOPS, TELLU-CARE, PPC-EMOB, PPC-IIOT, AST-DEDISRV, AALTO-LUMI, AALTO-EDGE5G. 15 in total."
+    },
+    {
+      "id": "H06",
+      "category": "negation",
+      "question": "Which 5G testbeds are not run by Orange Romania?",
+      "expectedRoute": "structured",
+      "myAnswer": "AALTO-EDGE5G (Edge Devices & 5G Testbed)"
+    },
+    {
+      "id": "H07",
+      "category": "comparison",
+      "question": "Do we have any security services still below TRL 4?",
+      "expectedRoute": "structured",
+      "myAnswer": "Yes: SECSAC (secSAC) and SECDEVTWIN (SecDevTwin), both at current TRL 3"
+    },
+    {
+      "id": "H08",
+      "category": "comparison",
+      "question": "Which entries in the catalog are already at TRL 9?",
+      "expectedRoute": "structured",
+      "myAnswer": "KAFKA plus the 14 partner infrastructure entries (every infrastructure entry is at TRL 9): ORO-5GLAB, ORO-3GPP16, ITPAERO-CLUSTER, ITPAERO-CFAA, SAVVY-DEVSRV, IDEKO-CNC, UIH-PROSUMER, SPS-DEVSECOPS, TELLU-CARE, PPC-EMOB, PPC-IIOT, AST-DEDISRV, AALTO-LUMI, AALTO-EDGE5G. 15 in total — CI-SIM and all other tools are below 9."
+    },
+    {
+      "id": "H09",
+      "category": "comparison",
+      "question": "Of the security tools in the Dev Services and Ops Services categories (not counting the Kafka message broker), which ones have reached TRL 5 or higher?",
+      "expectedRoute": "structured",
+      "myAnswer": "CSAM (5), SECNCD (5), SECVDR (5), SECAISOAR (6)",
+      "note": "KAFKA is in Ops Services at TRL 9 but is a message broker, so the question excludes it explicitly."
+    },
+    {
+      "id": "H10",
+      "category": "count",
+      "question": "How many services in the whole catalog does Montimage provide?",
+      "expectedRoute": "structured",
+      "myAnswer": "8: SECSIM, SECAISOAR, MAG, HTTP-SIM, MMT-PROBE, SECANOD, CI-SIM, AI4SOAR"
+    },
+    {
+      "id": "H11",
+      "category": "count",
+      "question": "How many services in the catalog are software only, having no hardware component?",
+      "expectedRoute": "structured",
+      "myAnswer": "20 — the 11 dev/ops security services, MAG, HTTP-SIM, MMT-PROBE, SECANOD, KAFKA, AI4SOAR, CI-SIM, SPS-DEVSECOPS and TELLU-CARE"
+    },
+    {
+      "id": "H12",
+      "category": "count",
+      "question": "How many entries support the smart charging use case (UC5)?",
+      "expectedRoute": "structured",
+      "myAnswer": "2: PPC-EMOB and PPC-IIOT (both from PPC)"
+    },
+    {
+      "id": "H13",
+      "category": "min-max",
+      "question": "What is the lowest current TRL among our security services, and which tool holds it?",
+      "expectedRoute": "structured",
+      "myAnswer": "TRL 3, held by SECSAC (Security Assurance Case Tool) and SECDEVTWIN (Assurance-driven Security Development Twin)"
+    },
+    {
+      "id": "H14",
+      "category": "min-max",
+      "question": "Looking only at the tools and services provided by Montimage, which one is the most mature right now?",
+      "expectedRoute": "structured",
+      "myAnswer": "MMT-PROBE (MMT Traffic Analysis Probe) at current TRL 7"
+    },
+    {
+      "id": "H15",
+      "category": "min-max",
+      "question": "Among the services wired into our attack-detect-respond demo, which one currently has the highest TRL?",
+      "expectedRoute": "structured",
+      "myAnswer": "KAFKA at TRL 9 (the other four: MAG 6, CI-SIM 6, SECANOD 6, AI4SOAR 5)"
+    },
+    {
+      "id": "H16",
+      "category": "group-by",
+      "question": "Among the providers, who provides the most tools and services?",
+      "expectedRoute": "structured",
+      "myAnswer": "Montimage (MTI) with 8"
+    },
+    {
+      "id": "H17",
+      "category": "group-by",
+      "question": "Considering all the infrastructures over the NIS2 sectors — which sector has the most infrastructure?",
+      "expectedRoute": "structured",
+      "myAnswer": "Energy with 4 (UIH-PROSUMER, SPS-DEVSECOPS, PPC-EMOB, PPC-IIOT)",
+      "note": "Only the partner infrastructure entries carry a sector; Digital infrastructure and Manufacturing tie at 3."
+    },
+    {
+      "id": "H18",
+      "category": "group-by",
+      "question": "Which use case do the most of the infrastructures items support?",
+      "expectedRoute": "structured",
+      "myAnswer": "Cross-cutting infrastructure support (SAVVY-DEVSRV, IDEKO-CNC, AST-DEDISRV — 3 items)",
+      "note": "Partner infrastructure = the hardware testbeds / non-toolbox list. UC1–UC5 and Research support each have 2 or fewer."
+    },
+    {
+      "id": "H19",
+      "category": "multi-constraint",
+      "question": "Which Energy-sector infrastructure is pure hardware, which mean it's not software or a hybrid)?",
+      "expectedRoute": "structured",
+      "myAnswer": "UIH-PROSUMER (Prosumer Cell) and PPC-EMOB (E-mobility Testing Facilities)",
+      "note": "PPC-IIOT is Software/Hardware and SPS-DEVSECOPS is Software, so they don't count as pure hardware."
+    },
+    {
+      "id": "H20",
+      "category": "multi-constraint",
+      "question": "Which Montimage tools are expected to reach TRL 8 but are still at TRL 6 or below today?",
+      "expectedRoute": "structured",
+      "myAnswer": "SECANOD (6), MAG (6), HTTP-SIM (6), CI-SIM (6), AI4SOAR (5); MMT-PROBE is excluded (already at 7), SECSIM and SECAISOAR expect only 7",
+      "note": "Replaced the terminal-UI question: the uiType field (MAG = web) contradicted MAG's description (driven from a shell)."
+    },
+    {
+      "id": "H21",
+      "category": "multi-constraint",
+      "question": "Do we have anything in the operations category from SINTEF? Which service is it?",
+      "expectedRoute": "structured",
+      "myAnswer": "Yes: SECOPSTWIN (Assurance-driven Security Operation Twin), current TRL 4 — SINTEF's other service, SECDEVTWIN, is in the dev category"
+    },
+    {
+      "id": "H22",
+      "category": "scenario-join",
+      "question": "Which services are used in the Montimage demo scenario (the attack → MMT detection → AI4SOAR block one)?",
+      "expectedRoute": "structured",
+      "myAnswer": "MAG, CI-SIM, SECANOD, KAFKA, AI4SOAR (5 services)"
+    },
+    {
+      "id": "H23",
+      "category": "scenario-join",
+      "question": "Which catalog services are left out of the Montimage demo scenario (not used in it at all)?",
+      "expectedRoute": "structured",
+      "myAnswer": "All 32 catalog services minus MAG, CI-SIM, SECANOD, KAFKA, AI4SOAR — 27 services: the 11 dev/ops security services, MMT-PROBE and HTTP-SIM, and the 14 infrastructure entries other than CI-SIM"
+    },
+    {
+      "id": "H24",
+      "category": "scenario-join",
+      "question": "Who supplies the alert bus that the demo scenario runs on?",
+      "expectedRoute": "structured",
+      "myAnswer": "Apache Software Foundation (KAFKA, the single-node Kafka broker used to carry secAnoD alerts to AI4SOAR)"
+    },
+    {
+      "id": "H25",
+      "category": "new-or",
+      "question": "Do you know which tools or services are provided by Fraunhofer Fokus or CERTH",
+      "expectedRoute": "structured",
+      "myAnswer": "CSAM (Fraunhofer Fokus), SECNCD and SECVDR (CERTH)"
+    },
+    {
+      "id": "H26",
+      "category": "new-at-least",
+      "question": "Which services reference at least two security standards in their catalog entry?",
+      "expectedRoute": "structured",
+      "myAnswer": "CSAM (7 standards: ISO/IEC 15408, EUCC, EN 17927, EN 17640, Cyber Security Act, Cyber Resilience Act, AI Act) and SECINTERP (3: IEC 62443-4-2, IEEE 1686, IEC 62351)",
+      "note": "All other entries list at most one standard."
+    },
+    {
+      "id": "H27",
+      "category": "new-ranking",
+      "question": "Rank the top 3 services by how many standards they map to",
+      "expectedRoute": "structured",
+      "myAnswer": "1. CSAM (7), 2. SECINTERP (3), 3. a four-way tie at one standard: SECSAC (OSCAL), ORO-5GLAB, ORO-3GPP16 and AALTO-EDGE5G (3GPP)",
+      "note": "Third place is tied; eval should accept any order among the single-standard entries."
+    },
+    {
+      "id": "H28",
+      "category": "new-cross-scenario",
+      "question": "Is there any service that appears in every scenario we have on the platform? If so, name them",
+      "expectedRoute": "structured",
+      "myAnswer": "No: the platform has two scenarios and the 'DDoS attack' scenario has no services yet, so no service is in every scenario. (The only populated scenario, the attack → MMT detection → AI4SOAR block demo, has MAG, CI-SIM, SECANOD, KAFKA, AI4SOAR.)",
+      "note": "Corrected after the check: the catalog has 2 scenarios, one of them empty. Accept an answer that says no common service, or that names the 5 demo services while explicitly noting the empty DDoS scenario."
+    },
+    {
+      "id": "H29",
+      "category": "no-answer",
+      "question": "Which of our tools that are compliant with ISO/IEC 27001?",
+      "expectedRoute": "structured",
+      "myAnswer": "none",
+      "note": "Nothing lists ISO/IEC 27001; CSAM's closest entry is ISO/IEC 15408."
+    },
+    {
+      "id": "H30",
+      "category": "no-answer",
+      "question": "Do we have any pure hardware offering that is driven from a terminal?",
+      "expectedRoute": "structured",
+      "myAnswer": "none",
+      "note": "The only terminal-UI entry in the catalog is KAFKA (software); every hardware entry has a web interface."
+    },
+    {
+      "id": "H31",
       "category": "lookup",
-      "question": "",
+      "question": "What exactly does secAttSIM do for us in operations?",
       "expectedRoute": "lookup",
-      "myAnswer": "",
-      "note": ""
+      "myAnswer": "It is the Attack and Incident Simulator: white-box and black-box adversarial AI attacks for operation scenarios, using reinforcement-learning-guided and LLM-generated attack controls, running in parallel with real IoT-edge-cloud systems (Tecnalia, TRL 4/7, Ops Services)"
+    },
+    {
+      "id": "H32",
+      "category": "lookup",
+      "question": "Under which license is the MMT Traffic Analysis Probe distributed?",
+      "expectedRoute": "lookup",
+      "myAnswer": "TBD"
+    },
+    {
+      "id": "H33",
+      "category": "lookup",
+      "question": "Tell me the 5 tools or services that provide network monitoring or traffic analysis capabilities",
+      "expectedRoute": "lookup",
+      "myAnswer": "False premise: only two services do network monitoring / traffic analysis: MMT-PROBE (DPI probe) and SECANOD (capture & detection with mmt-probe), the two services in the Monitor category. SECOPSTWIN (continuous security monitoring of deployed systems) is acceptable as a third. A correct answer must not pad the list to five.",
+      "note": "Filled by Claude after the freeze check. Capability is only in descriptions, so the semantic lookup route is expected; the structured route on category = Monitor also gives a correct answer."
+    },
+    {
+      "id": "H34",
+      "category": "lookup",
+      "question": "Which standards and regulations does CSAM align with?",
+      "expectedRoute": "lookup",
+      "myAnswer": "ISO/IEC 15408, EUCC, EN 17927, EN 17640, Cyber Security Act, Cyber Resilience Act, AI Act"
+    },
+    {
+      "id": "H35",
+      "category": "lookup",
+      "question": "What TRL does the AI-based Non-Compliance Detector (secNCD) expect to reach?",
+      "expectedRoute": "lookup",
+      "myAnswer": "TRL 7 (currently at TRL 5)"
     }
   ]
 }

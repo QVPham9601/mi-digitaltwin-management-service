@@ -1,0 +1,30 @@
+{
+  "run": "results/heldout-qwen3-14b.jsonl",
+  "manual": {
+    "H28": {
+      "A": [false, false, false],
+      "C": [false, false, false],
+      "why": "A and C rep2/3 say they cannot tell; C rep1 says 'no' from 4 unrelated services, not from the empty DDoS scenario"
+    },
+    "H29": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all say no tool lists ISO/IEC 27001"
+    },
+    "H30": { "A": [true, true, true], "C": [true, true, true], "why": "all say none" },
+    "H31": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all describe adversarial AI attack simulation for operations"
+    }
+  },
+  "overrides_complete_but_extra_names": {
+    "correct": ["H06 A rep1-3", "H14 A rep1-3", "H19 A rep1-2", "H26 A rep1-2"],
+    "why_correct": "the extra services are named only to be excluded (other providers, lower TRL, fewer standards)",
+    "wrong": [
+      "H27 A rep2 (invents SECASSURE4AI with 3 standards)",
+      "H33 A rep1 (lists KAFKA, HTTP-SIM as monitoring)",
+      "H33 A rep3 (lists HTTP-SIM as monitoring)"
+    ]
+  }
+}

@@ -259,3 +259,49 @@ repetitions each.
   `qwen3-14b-main.jsonl` (v1).
 - Code: `server/src/agent/structured-retriever.ts`, `query-router.ts`
   (`RAG_RETRIEVAL_MODE`, default `vector`).
+
+## Addendum (2026-11-05): held-out question set, local qwen3:14b
+
+**Protocol.** 35 questions written by the author on 2026-11-05 (45 min) after the
+code freeze at `ce280bc` (tag `heldout-freeze`), without opening the old set.
+Ground truth computed from the catalog by `heldout/ground_truth_heldout.py`; it agrees
+with the author's own answers on all 35 (after fixing 4 author slips; H05, H09 and H20
+were reworded or replaced before any run because they were ambiguous). Catalog
+unchanged since the 2026-10-22 snapshot (re-dumped and compared). Run: A (vector top-4)
+and C (routed) x 3 on the local qwen3:14b, 210 answers, no errors or timeouts. The DGX
+35B run is pending (DGX unreachable on 2026-11-05). Manual decisions are recorded in
+`heldout/adjudication-qwen3-14b.json`.
+
+| subset                                                       | A vector               | C routed               |
+| ------------------------------------------------------------ | ---------------------- | ---------------------- |
+| structured questions (30 x 3)                                | 42/90 (47%, CI 37–57%) | 56/90 (62%, CI 52–72%) |
+| — without the 3 paraphrases of old questions (H03, H10, H17) | 36/81 (44%)            | 47/81 (58%)            |
+| lookup questions (5 x 3)                                     | 11/15 (73%)            | 12/15 (80%)            |
+| all 105                                                      | 53/105 (50%)           | 68/105 (65%)           |
+
+McNemar on structured (question x rep pairs): C-only correct 26, A-only 12, exact p = 0.034.
+Majority-correct structured questions: A 14/30, C 19/30. Router: right branch 93/105.
+
+**Generalisation gap.** C drops from 90% on the old set (same model) to 62% on the
+held-out set: part of the old-set gain came from fixes tuned on those questions. The
+gap is in query planning, not in retrieval or generation:
+
+- _OR written as AND_ (H09, H25, H33, H23): the router puts one alternative in
+  `where` and the other in `whereAny`, so the query is empty.
+- _Invented filters_ (H15, H18, H22): an extra `repositoryTable = INTACT_TOOLBOX`
+  or sector predicate silently drops the right service (e.g. KAFKA).
+- _Operations the query language lacks_ (H26, H27: number of standards): the
+  router improvises and gets a wrong or empty result; A answers these better from text.
+- _Semantic questions routed to structured_ (H01, H33): capability lives in the
+  descriptions, not in fields.
+- _Scenario facts_ (H28): neither condition knows the scenario list; both fail.
+
+**Safety-relevant failure.** About 15 C answers (H09, H18, H23, H25, H26, H33) state
+confidently that _no_ service matches when several do, because the generator trusts
+an empty structured result. For an operator this is worse than a vague answer. An
+empty result from a multi-predicate query should trigger a check (relax one
+predicate, or fall back to vector) before answering "none".
+
+**Threats.** Single author for questions and adjudication; 3 reps of the same
+model are not independent samples (question-level majority reported too); the
+14B only; the A and C prompts differ in context format.
