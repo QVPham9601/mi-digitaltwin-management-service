@@ -369,3 +369,30 @@ structured questions, but a check is needed to escalate the uncertain ones — a
 empty or very small result from a multi-predicate query is a cheap, observable signal.
 (2) Adding a list-length operation would cover H26/H27 for all models.
 (3) Cost: Opus ≈ $0.025 per answer, 9 s; 35B free, 3 s; 14B free, 34 s.
+
+## Addendum (2026-11-09): offline cascade simulation (D2)
+
+`heldout/cascade_offline.py` replays the recorded held-out answers: the 35B answers in C;
+when a signal observable at answer time fires, the recorded Opus C answer to the same
+question and rep replaces it. No new model calls. Correctness from `heldout/adjudicated.py`
+(the manual decisions above, as code).
+
+| escalate when                                      | escalated | accuracy (105) | false "none" kept | Opus cost |
+| -------------------------------------------------- | --------- | -------------- | ----------------- | --------- |
+| never (35B only)                                   | 0%        | 77%            | 8                 | $0        |
+| empty structured result                            | 12%       | 82%            | 0                 | $0.33     |
+| empty OR router fallback                           | 16%       | 83%            | 0                 | $0.43     |
+| + filter value absent from the question (post-hoc) | 39%       | 90%            | 0                 | $1.03     |
+| always (Opus only)                                 | 100%      | 94%            | 0                 | $2.65     |
+
+- The cheap signal (empty result or fallback) removes **all** confident false "none"
+  answers for 16% escalations, but gains only 6 points: most remaining 35B errors are
+  wrong non-empty results (an invented or wrong filter), which the signal cannot see.
+- A filter whose value shares no word with the question flags most of these (H07, H13,
+  H17, H18, H23, H26), reaching 90% for 39% of the Opus cost. **This signal was designed
+  after reading these failures, so it is a hypothesis to validate on new questions,**
+  not a result. It also escalates 24 answers the 35B had right (false alarms).
+- Not caught by any signal: H05 (generator reinterprets a correct result), H23 rep 2-3,
+  H27 (unsupported operation), H28.
+- Next: implement the empty-result check in the agent (relax, then fall back), add a
+  list-length aggregate, and test both plus the cascade on a fresh question set.
