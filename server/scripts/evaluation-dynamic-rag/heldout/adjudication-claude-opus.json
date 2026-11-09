@@ -1,0 +1,35 @@
+{
+  "run": "results/heldout-claude-opus.jsonl",
+  "cost_usd": 5.29,
+  "reruns": [
+    "H08 A rep2 (connection terminated)",
+    "H33 C rep2 (120 s timeout)",
+    "H21 C rep1 (router call timed out, fell back to vector)"
+  ],
+  "manual": {
+    "H28": {
+      "A": [false, false, false],
+      "C": [true, true, true],
+      "why": "A: cannot tell. C: queried the DDoS attack scenario, found it empty and concluded no service is in every scenario (rep2/3 hedge but give that reasoning)"
+    },
+    "H29": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all say no service lists ISO/IEC 27001"
+    },
+    "H30": { "A": [true, true, true], "C": [true, true, true], "why": "all say no" },
+    "H31": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all describe adversarial AI attack simulation for operations"
+    }
+  },
+  "overrides_complete_but_extra_names": {
+    "rule": "every complete-but-not-strict answer is correct (extra services are named only to exclude, compare or explain), except those listed as wrong",
+    "wrong": [
+      "H26 C rep3 (lists all 32 services, no answer)",
+      "H27 C rep3 (all tied at 1)",
+      "H27 A rep1-3 (no third place; misses the 1-standard tie)"
+    ]
+  }
+}

@@ -335,3 +335,37 @@ moved to 192.168.0.132 after a restart, passed as a per-process `CHAT_BASE_URL`)
   (H07, H23, H26, H33), 15 for the 14B. The empty-result check proposed above is still
   needed with the larger model.
 - Vector retrieval stays ahead on single-service lookups (14/15 vs 13/15, not significant).
+
+## Addendum (2026-11-09): held-out question set, Claude Opus 5.5 — three-model comparison
+
+Same frozen code and protocol, generator and router = `claude-opus-5-5` (effort medium),
+per-process override. 210 answers, $5.29 in total (3 answers re-run after network or
+API timeouts). Manual decisions in `heldout/adjudication-claude-opus.json`.
+
+| subset                | 14B A | 14B C | 35B A | 35B C | Opus A | Opus C              |
+| --------------------- | ----- | ----- | ----- | ----- | ------ | ------------------- |
+| structured (30 x 3)   | 47%   | 62%   | 43%   | 76%   | 47%    | **93%** (CI 86–97%) |
+| — without paraphrases | 44%   | 58%   | 41%   | 74%   | 44%    | 93%                 |
+| lookup (5 x 3)        | 73%   | 80%   | 93%   | 87%   | 100%   | 100%                |
+| all 105               | 50%   | 65%   | 50%   | 77%   | 54%    | **94%**             |
+
+- **Vector retrieval does not improve with the model.** A stays at 43–47% on
+  structured questions for all three generators: the four retrieved services do not
+  contain the answer, whatever reads them. Structured retrieval is the necessary part.
+- **Routed accuracy scales with the planner.** C: 62% → 76% → 93%. Opus vs 35B (C):
+  Opus-only correct 16, 35B-only 0, p = 3e-5. Opus A vs C: 45 vs 3, p = 1e-10.
+- **Opus closes the generalisation gap** (old set ~100% adjudicated, held-out 93%); the
+  local models lose 16–28 points. The held-out gap of the local models is a planning
+  limit, not overfitting of the executor.
+- **What remains for Opus C:** only H26 and H27 (number of standards per service), which
+  the query language cannot express. H28 (empty scenario) is solved: Opus queries the
+  scenario and reasons from the empty result.
+- **No false "nothing matches" answers for Opus** (vs 10 for the 35B, 15 for the 14B).
+  The safety failure is a planning failure of the smaller models: an over-constrained
+  query returns nothing and the generator trusts it.
+
+**Implications.** (1) Supports the cascade idea (D2): a local model can answer most
+structured questions, but a check is needed to escalate the uncertain ones — an
+empty or very small result from a multi-predicate query is a cheap, observable signal.
+(2) Adding a list-length operation would cover H26/H27 for all models.
+(3) Cost: Opus ≈ $0.025 per answer, 9 s; 35B free, 3 s; 14B free, 34 s.
