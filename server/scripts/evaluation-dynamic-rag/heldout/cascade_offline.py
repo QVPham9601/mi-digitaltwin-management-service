@@ -59,21 +59,26 @@ def wilson(k, n, z=1.96):
     return f"{p:.0%} ({max(0, c - h):.0%}–{min(1, c + h):.0%})"
 
 
-print("| escalate when | escalated | accuracy, all 105 | structured 90 | false 'none' kept | Opus cost |")
-print("|---|---|---|---|---|---|")
-for name, fire in SIGNALS.items():
-    esc = [k for k in keys if fire(local[k][1])]
-    ok = {k: (opus[k][0] if k in esc else local[k][0]) for k in keys}
-    st = [k for k in keys if QS[k[0]]["expectedRoute"] == "structured"]
-    # wrong 35B answers that claim nothing matches and are not escalated
-    fn = sum(1 for k in keys if k not in esc and not local[k][0] and local[k][1]["retrieval"].get("emptyResult")
-             and QS[k[0]]["expected"].get("value"))
-    print(f"| {name} | {len(esc)}/105 | {wilson(sum(ok.values()), len(keys))} | {wilson(sum(ok[k] for k in st), len(st))} "
-          f"| {fn} | ${len(esc) * OPUS_USD:.2f} |")
+def main():
+    print("| escalate when | escalated | accuracy, all 105 | structured 90 | false 'none' kept | Opus cost |")
+    print("|---|---|---|---|---|---|")
+    for name, fire in SIGNALS.items():
+        esc = [k for k in keys if fire(local[k][1])]
+        ok = {k: (opus[k][0] if k in esc else local[k][0]) for k in keys}
+        st = [k for k in keys if QS[k[0]]["expectedRoute"] == "structured"]
+        # wrong 35B answers that claim nothing matches and are not escalated
+        fn = sum(1 for k in keys if k not in esc and not local[k][0] and local[k][1]["retrieval"].get("emptyResult")
+                 and QS[k[0]]["expected"].get("value"))
+        print(f"| {name} | {len(esc)}/105 | {wilson(sum(ok.values()), len(keys))} | {wilson(sum(ok[k] for k in st), len(st))} "
+              f"| {fn} | ${len(esc) * OPUS_USD:.2f} |")
 
-# what the best cheap signal misses
-fire = SIGNALS["empty OR fallback"]
-miss = sorted({k[0] for k in keys if not local[k][0] and not fire(local[k][1])})
-caught = sorted({k[0] for k in keys if not local[k][0] and fire(local[k][1])})
-print(f"\n35B wrong and escalated (empty OR fallback): {caught}")
-print(f"35B wrong and NOT escalated: {miss}")
+    # what the best cheap signal misses
+    fire = SIGNALS["empty OR fallback"]
+    miss = sorted({k[0] for k in keys if not local[k][0] and not fire(local[k][1])})
+    caught = sorted({k[0] for k in keys if not local[k][0] and fire(local[k][1])})
+    print(f"\n35B wrong and escalated (empty OR fallback): {caught}")
+    print(f"35B wrong and NOT escalated: {miss}")
+
+
+if __name__ == "__main__":
+    main()

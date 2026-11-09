@@ -61,7 +61,7 @@ def grade(q, answer):
     if t == "ranking":  # ordered head (e.g. top 2) plus a tie whose members may follow
         want, optional = exp["value"], set(exp.get("optional", []))
         first = [min(mm.start() for mm in re.finditer(re.escape(n), answer, re.I)) for n in want if n in m]
-        ok = set(want) <= m
+        ok = set(want) | set(exp.get("alsoRequired", [])) <= m  # alsoRequired: tied members to name
         return {"complete": ok, "correct": ok and first == sorted(first) and not (m - set(want) - optional)}
     if t == "labels":
         ok = all(has_label(answer, x) for x in exp["value"])

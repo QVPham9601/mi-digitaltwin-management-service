@@ -1,0 +1,13 @@
+{
+  "run": "results/heldout2-claude-opus.jsonl",
+  "cost_usd": 1.36,
+  "reruns": ["1 row dropped after a network or API failure and re-run"],
+  "manual": {
+    "N11": "C 3/3 correct",
+    "N12": "C 3/3 correct (notes NTNU is not in the catalog)",
+    "N13": "C 3/3 correct"
+  },
+  "wrong": [
+    "N04 rep1-3: names SECSIM and SECAISOAR, but concludes HTTP-SIM and MMT-PROBE are 'likely wired in' because their descriptions still say they are used in the scenario (stale catalog text); the scenario's member list excludes them"
+  ]
+}

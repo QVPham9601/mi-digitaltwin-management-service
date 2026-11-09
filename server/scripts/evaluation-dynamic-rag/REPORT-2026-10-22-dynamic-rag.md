@@ -396,3 +396,46 @@ question and rep replaces it. No new model calls. Correctness from `heldout/adju
   H27 (unsupported operation), H28.
 - Next: implement the empty-result check in the agent (relax, then fall back), add a
   list-length aggregate, and test both plus the cascade on a fresh question set.
+
+## Addendum (2026-11-09): second held-out set (after the relaxation and list-size changes)
+
+15 new questions written by the author after the code freeze at `3b8ac59` (tag
+`heldout2-freeze`), aimed at the changes: or, and-not, at-least (list sizes),
+ranking, no-answer with several conditions, multi-constraint. Ground truth from
+`heldout2/ground_truth_heldout2.py` (agrees with the author on 14/15; one author slip
+fixed). N06 and N10 paraphrase first-set H26/H27. Catalog unchanged. Manual decisions
+in `heldout2/adjudication-*.json`, applied as code in `heldout2/adjudicated2.py`.
+
+| C routed | structured (14 x 3)    | all 15 x 3  |
+| -------- | ---------------------- | ----------- |
+| 14B      | 34/42 (81%, CI 67–90%) | 37/45 (82%) |
+| 35B      | 38/42 (90%, CI 78–96%) | 41/45 (91%) |
+| Opus     | 39/42 (93%, CI 81–98%) | 42/45 (93%) |
+
+35B A (vector) on structured: 27/42 (64%); A vs C McNemar 4 vs 15, p = 0.019.
+Without the two paraphrases, 35B C = 33/36 (92%).
+
+- **List sizes and ranking work for the 35B and Opus** (at-least 9/9, N09 ranking 3/3);
+  the 14B does not use the new operators (N08, N10 fail with "cannot determine").
+- **Relaxation** fired on 7 35B answers, all on true "none" questions; 6/7 correct. One new
+  failure (N13 rep2): the generator read the relaxed list as the answer. The
+  relaxation text needs a clearer "these do NOT satisfy the question" marker.
+- **False "none":** 35B 1/45 (N05 rep2: a double negation `NOT(ne ORO)`, a single-condition
+  query that relaxation cannot catch), Opus 0, 14B 0.
+- **Stale twin data:** HTTP-SIM and MMT-PROBE descriptions still say they are used in the
+  demo scenario, which its member list (and the deployment) no longer includes. Opus
+  noticed the conflict and sided with the descriptions (N04, 0/3). A concrete case for
+  twin-fidelity checks (D3): the twin's own records can disagree.
+
+**Cascade (signals fixed in `heldout/cascade_offline.py` before this set was written):**
+
+| escalate when                           | escalated | accuracy (45) | Opus cost |
+| --------------------------------------- | --------- | ------------- | --------- |
+| never (35B only)                        | 0%        | 91%           | $0        |
+| empty result OR router fallback         | 24%       | 93%           | $0.33     |
+| + filter value absent from the question | 47%       | 96%           | $0.63     |
+| always (Opus only)                      | 100%      | 93%           | $1.36     |
+
+The cheap signal matches Opus alone for a quarter of its cost; the wider signal
+exceeds both (the 35B is right where Opus is wrong on N04). Small set (15
+questions): the cascade numbers are indicative, not significant.

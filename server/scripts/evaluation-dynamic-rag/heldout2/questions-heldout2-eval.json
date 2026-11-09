@@ -1,0 +1,200 @@
+[
+  {
+    "id": "N01",
+    "category": "or",
+    "expectedIntent": "service",
+    "expectedRoute": "lookup",
+    "question": "A quick question about the tool we'll use for the requirements work: who is actually behind the standard interpretation assistant, secInterp — the Norwegians from SINTEF, or Tecnalia?",
+    "groundTruth": "Tecnalia (TEC)",
+    "expected": {
+      "type": "value",
+      "value": "Tecnalia (TEC)"
+    },
+    "authorAnswer": "Tecnalia (TEC)"
+  },
+  {
+    "id": "N02",
+    "category": "or",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Among all the labs and facilities listed in the catalog, which ones do we get from Orange Romania or from Aalto?",
+    "groundTruth": "AALTO-EDGE5G, AALTO-LUMI, ORO-3GPP16, ORO-5GLAB",
+    "expected": {
+      "type": "set",
+      "value": ["AALTO-EDGE5G", "AALTO-LUMI", "ORO-3GPP16", "ORO-5GLAB"]
+    },
+    "authorAnswer": "Orange 5G Lab (ORO-5GLAB), 3GPP Rel 16 Commercial Facility (ORO-3GPP16), LUMI Supercomputer (AALTO-LUMI), Edge Devices & 5G Testbed (AALTO-EDGE5G)"
+  },
+  {
+    "id": "N03",
+    "category": "or",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "If I look at the energy and health sector entries, which of them are pure software (not hardware and not mixed)?",
+    "groundTruth": "SPS-DEVSECOPS, TELLU-CARE",
+    "expected": {
+      "type": "set",
+      "value": ["SPS-DEVSECOPS", "TELLU-CARE"]
+    },
+    "authorAnswer": "DevSecOps Architecture (SPS-DEVSECOPS), TelluCare Product Family (TELLU-CARE)"
+  },
+  {
+    "id": "N04",
+    "category": "and-not",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which of the Montimage modules and tools is NOT wired into the demo attack→detect→respond scenario we run on Kubernetes?",
+    "groundTruth": "HTTP-SIM, MMT-PROBE, SECAISOAR, SECSIM",
+    "expected": {
+      "type": "set",
+      "value": ["HTTP-SIM", "MMT-PROBE", "SECAISOAR", "SECSIM"]
+    },
+    "authorAnswer": "secSIM (SECSIM), secAISOAR (SECAISOAR), Simulated HTTP Server (HTTP-SIM), MMT Traffic Analysis Probe (MMT-PROBE)"
+  },
+  {
+    "id": "N05",
+    "category": "and-not",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which tools and services in the catalog reference the 3GPP standard but are not operated by Orange?",
+    "groundTruth": "AALTO-EDGE5G",
+    "expected": {
+      "type": "set",
+      "value": ["AALTO-EDGE5G"]
+    },
+    "authorAnswer": "Edge Devices & 5G Testbed (AALTO-EDGE5G)"
+  },
+  {
+    "id": "N06",
+    "category": "at-least",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which services list two or more standards that they align with?",
+    "groundTruth": "CSAM, SECINTERP",
+    "expected": {
+      "type": "set",
+      "value": ["CSAM", "SECINTERP"]
+    },
+    "authorAnswer": "CSAM (7 standards: ISO/IEC 15408, EUCC, EN 17927, EN 17640, Cyber Security Act, Cyber Resilience Act, AI Act), secInterp (3: IEC 62443-4-2, IEEE 1686, IEC 62351)"
+  },
+  {
+    "id": "N07",
+    "category": "at-least",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "In the cybersecurity services part of the catalog (the toolbox, not the partner-operated infrastructure), which entries have reached TRL 7 or higher already?",
+    "groundTruth": "MMT-PROBE",
+    "expected": {
+      "type": "set",
+      "value": ["MMT-PROBE"]
+    },
+    "authorAnswer": "MMT Traffic Analysis Probe (MMT-PROBE), TRL 7"
+  },
+  {
+    "id": "N08",
+    "category": "at-least",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "And the opposite case: which services reference exactly one standard, no more?",
+    "groundTruth": "AALTO-EDGE5G, ORO-3GPP16, ORO-5GLAB, SECSAC",
+    "expected": {
+      "type": "set",
+      "value": ["AALTO-EDGE5G", "ORO-3GPP16", "ORO-5GLAB", "SECSAC"]
+    },
+    "authorAnswer": "secSAC (SECSAC, OSCAL), Orange 5G Lab (ORO-5GLAB, 3GPP), 3GPP Rel 16 Commercial Facility (ORO-3GPP16, 3GPP), Edge Devices & 5G Testbed (AALTO-EDGE5G, 3GPP)"
+  },
+  {
+    "id": "N09",
+    "category": "ranking",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Sort all the Montimage entries in the catalog from most mature to least by their current TRL.",
+    "groundTruth": "['MMT-PROBE', 'AI4SOAR', 'SECSIM'] (may also name: CI-SIM, HTTP-SIM, MAG, SECAISOAR, SECANOD)",
+    "expected": {
+      "type": "ranking",
+      "value": ["MMT-PROBE", "AI4SOAR", "SECSIM"],
+      "alsoRequired": ["CI-SIM", "HTTP-SIM", "MAG", "SECAISOAR", "SECANOD"],
+      "optional": ["CI-SIM", "HTTP-SIM", "MAG", "SECAISOAR", "SECANOD"]
+    },
+    "authorAnswer": "MMT-PROBE (7); SECANOD, SECAISOAR, MAG, HTTP-SIM, CI-SIM (6); AI4SOAR (5); SECSIM (4)"
+  },
+  {
+    "id": "N10",
+    "category": "ranking",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Give me the top 3 services by how many standards they reference.",
+    "groundTruth": "['CSAM', 'SECINTERP'] (may also name: SECSAC, ORO-5GLAB, ORO-3GPP16, AALTO-EDGE5G)",
+    "expected": {
+      "type": "ranking",
+      "value": ["CSAM", "SECINTERP"],
+      "optional": ["SECSAC", "ORO-5GLAB", "ORO-3GPP16", "AALTO-EDGE5G"]
+    },
+    "authorAnswer": "1. CSAM (7), 2. secInterp (3), 3. four-way tie with one standard each: secSAC, Orange 5G Lab, 3GPP Rel 16 Commercial Facility, Aalto Edge Devices & 5G Testbed"
+  },
+  {
+    "id": "N11",
+    "category": "no-answer",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Has any of the Tecnalia tools made it to TRL 6 yet?",
+    "groundTruth": "none (empty set)",
+    "expected": {
+      "type": "set",
+      "value": []
+    },
+    "authorAnswer": "none"
+  },
+  {
+    "id": "N12",
+    "category": "no-answer",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Do any of our Norwegian partners — SINTEF, NTNU or Tellu — operate a hardware facility in the infrastructure list?",
+    "groundTruth": "none (empty set)",
+    "expected": {
+      "type": "set",
+      "value": []
+    },
+    "authorAnswer": "none"
+  },
+  {
+    "id": "N13",
+    "category": "no-answer",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which of the 5G testbed entries is still below TRL 9?",
+    "groundTruth": "none (empty set)",
+    "expected": {
+      "type": "set",
+      "value": []
+    },
+    "authorAnswer": "none"
+  },
+  {
+    "id": "N14",
+    "category": "multi-constraint",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "I need compute for our manufacturing trials: which entries sit in the Manufacturing sector, are listed as hardware, and are run by ITP Aero?",
+    "groundTruth": "ITPAERO-CFAA, ITPAERO-CLUSTER",
+    "expected": {
+      "type": "set",
+      "value": ["ITPAERO-CFAA", "ITPAERO-CLUSTER"]
+    },
+    "authorAnswer": "Computer Cluster (ITPAERO-CLUSTER), CFAA (ITPAERO-CFAA)"
+  },
+  {
+    "id": "N15",
+    "category": "multi-constraint",
+    "expectedIntent": "service",
+    "expectedRoute": "structured",
+    "question": "Which tools or services are mixed hardware-and-software, come from one of our Spanish partners like ITP Aero, IDEKO or Savvy Data Systems, and are mapped to the Manufacturing sector?",
+    "groundTruth": "IDEKO-CNC",
+    "expected": {
+      "type": "set",
+      "value": ["IDEKO-CNC"]
+    },
+    "authorAnswer": "IDEKO-CNC (Industry 4.0 CNC Controller Digital Laboratory)"
+  }
+]

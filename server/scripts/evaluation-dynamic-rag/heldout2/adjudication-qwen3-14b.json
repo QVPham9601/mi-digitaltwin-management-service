@@ -1,0 +1,10 @@
+{
+  "run": "results/heldout2-qwen3-14b.jsonl",
+  "manual": { "N11": "C 3/3 correct", "N12": "C 3/3 correct", "N13": "C 3/3 correct" },
+  "wrong": [
+    "N04 rep1-3 ('cannot determine')",
+    "N08 rep1, rep3 ('cannot determine')",
+    "N10 rep1-3 (count grouped by shortName instead of rank)"
+  ],
+  "note": "no complete-but-not-strict rows; the 14B's wrong answers say 'cannot determine' rather than a false 'none'"
+}

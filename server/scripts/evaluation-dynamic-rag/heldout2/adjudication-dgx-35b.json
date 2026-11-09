@@ -1,0 +1,30 @@
+{
+  "run": "results/heldout2-dgx-35b.jsonl",
+  "reruns": "11 rows dropped after network failures (error or router call failed) and re-run in a second pass",
+  "manual": {
+    "N11": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all say no Tecnalia tool is at TRL 6"
+    },
+    "N12": {
+      "A": [true, true, true],
+      "C": [true, true, true],
+      "why": "all say none (TELLU-CARE and the SINTEF tools are software)"
+    },
+    "N13": {
+      "A": [true, true, true],
+      "C": [true, false, true],
+      "why": "C rep2 lists the three 5G testbeds as 'below TRL 9': the relaxation context (5G testbeds without the TRL condition) was read as the answer"
+    }
+  },
+  "overrides_complete_but_extra_names": {
+    "rule": "complete-but-not-strict rows are correct (extras are excluded or compared), except the listed ones",
+    "wrong": ["N15 A rep1-3 (lists the ITP Aero hardware entries as mixed hardware-and-software)"]
+  },
+  "strict_wrong_C": [
+    "N02 rep2 (router value 'OR (Orange Romania)' rejected, vector fallback misses one service)",
+    "N05 rep2 (router wrote NOT(ne ORO): only Orange entries kept, answered 'none')",
+    "N10 rep1 (count grouped by shortName instead of rank: 'all tied at 1')"
+  ]
+}
