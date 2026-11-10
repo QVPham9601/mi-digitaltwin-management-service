@@ -175,8 +175,10 @@ grounded, a frontier model is _better_ than the local 35B on the residue
 
 - the claim is "grounding first, then scale helps on the hard residue", not
   "scale never matters";
-- it supports a cascade (D2): the local model by default, a larger model only
-  for the steps where the twin shows the local one is wrong.
+- it supports a cascade (D2): the small local model by default, a larger
+  _local_ model (the 35B) only for the steps where the twin shows the small one
+  is wrong. The frontier model is the upper-bound reference, not part of the
+  system: the thesis targets a local deployment.
 
 **Threats.** One frontier model, effort `medium`. Same questions as v2 (not
 held out). A-condition adjudication is not done.
@@ -365,12 +367,17 @@ API timeouts). Manual decisions in `heldout/adjudication-claude-opus.json`.
   query returns nothing and the generator trusts it.
 
 **Implications.** (1) Supports the cascade idea (D2): a local model can answer most
-structured questions, but a check is needed to escalate the uncertain ones — an
+structured questions, but a check is needed to escalate the uncertain ones to a larger local model — an
 empty or very small result from a multi-predicate query is a cheap, observable signal.
 (2) Adding a list-length operation would cover H26/H27 for all models.
 (3) Cost: Opus ≈ $0.025 per answer, 9 s; 35B free, 3 s; 14B free, 34 s.
 
 ## Addendum (2026-11-09): offline cascade simulation (D2)
+
+> **Reframed 2026-11-10.** This table escalates to Opus. It measures how many errors
+> each signal catches, with the frontier model as the reference answer. The thesis
+> cascade stays local (14B → 35B, see the addendum "Local cascade" below). Opus is a
+> comparison reference only, never a stage of the proposed system.
 
 `heldout/cascade_offline.py` replays the recorded held-out answers: the 35B answers in C;
 when a signal observable at answer time fires, the recorded Opus C answer to the same
@@ -427,7 +434,9 @@ Without the two paraphrases, 35B C = 33/36 (92%).
   noticed the conflict and sided with the descriptions (N04, 0/3). A concrete case for
   twin-fidelity checks (D3): the twin's own records can disagree.
 
-**Cascade (signals fixed in `heldout/cascade_offline.py` before this set was written):**
+**Cascade (signals fixed in `heldout/cascade_offline.py` before this set was written).**
+As run, it escalated to Opus (reference). See "Local cascade" below for the local
+14B → 35B version that the thesis proposes.
 
 | escalate when                           | escalated | accuracy (45) | Opus cost |
 | --------------------------------------- | --------- | ------------- | --------- |
@@ -439,3 +448,33 @@ Without the two paraphrases, 35B C = 33/36 (92%).
 The cheap signal matches Opus alone for a quarter of its cost; the wider signal
 exceeds both (the 35B is right where Opus is wrong on N04). Small set (15
 questions): the cascade numbers are indicative, not significant.
+
+## Addendum (2026-11-10): local cascade 14B → 35B (D2, offline)
+
+The thesis system stays local. The D2 cascade is therefore the laptop 14B answering
+first and the 35B on the DGX taking over when a signal fires. Opus appears only as
+a reference row. `heldout/cascade_offline.py --set=heldout|heldout2` (defaults
+`--small=14b --large=35b`) replays the recorded C answers, so no new model calls
+are needed. Correctness comes from the recorded adjudications. "Escalated" is the
+share of answers that reach the DGX.
+
+| escalate when                                      | set 1: escalated | set 1: accuracy (105) | set 2: escalated | set 2: accuracy (45) |
+| -------------------------------------------------- | ---------------- | --------------------- | ---------------- | -------------------- |
+| never (14B only)                                   | 0%               | 65%                   | 0%               | 82%                  |
+| empty result OR router fallback                    | 26%              | 72%                   | 40%              | 84%                  |
+| + 3 or more predicates                             | 40%              | 81%                   | 53%              | 84%                  |
+| + filter value absent from the question (post-hoc) | 49%              | 81%                   | 53%              | 84%                  |
+| always (35B only)                                  | 100%             | 77%                   | 100%             | 91%                  |
+| reference only: Opus alone                         | –                | 94%                   | –                | 93%                  |
+
+- Every signal including "empty result" removes all the 14B's confident false "none"
+  answers on both sets (18 on set 1, 3 on set 2).
+- **Set 1:** the cascade beats the 35B alone (81% vs 77%) with half the answers
+  on the DGX. Here the 14B is right on several questions the 35B gets wrong.
+- **Set 2:** the cascade stays below the 35B alone (84% vs 91%). The 14B errors on
+  N08 and N10 are wrong non-empty results, which no signal sees.
+- So the signals are not enough. A twin-side check on non-empty results (does the
+  result satisfy what the question names?) is the open part of D2, and it stays
+  local.
+- Set 1 signals were designed on set 1 (post-hoc). Set 2 is small (15 questions).
+  The numbers are indicative, not significant.

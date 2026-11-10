@@ -9,8 +9,8 @@ These questions test the changes made after the first held-out set, on
   answered with a bare "none";
 - filters on the number of entries of a list ("at least two standards") and
   ranking ("top 3 by …");
-- the cascade signals (when the local model should hand the question to a
-  stronger one), which were designed on the first held-out set and must be
+- the cascade signals (when the small local model should hand the question
+  to a larger local one), which were designed on the first held-out set and must be
   checked on new questions.
 
 The first held-out set has now been read and its failures studied, so it can
@@ -80,6 +80,7 @@ Spread the questions over different fields, providers and sectors.
    (about $1); A x3 on the DGX as the vector baseline.
 3. Measured: accuracy per type; false "none" answers (should be 0); how often
    the relaxation fires and whether the answer then names the right services;
-   the cascade (35B + Opus on escalation) with the signals fixed in
-   `heldout/cascade_offline.py` before this set was written.
+   the cascade with the signals fixed in `heldout/cascade_offline.py`
+   before this set was written (as run: 35B + Opus on escalation; reframed
+   2026-11-10 to the local 14B → 35B cascade, Opus as reference only).
 4. Report the result whatever it is.

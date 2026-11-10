@@ -19,7 +19,7 @@ and handed over `questions/questions-live-state.json`.
 | T   | `auto`         | yes, read live at answer time        |
 
 Generators: DGX 35B (`CHAT_BASE_URL=http://192.168.0.132:8001/v1`, may change — ask the
-user) and local `qwen3:14b`. Claude only if the user approves a budget.
+user) and local `qwen3:14b`. Claude only as a comparison reference, never as part of the system, and only if the user approves a budget.
 
 ## Procedure
 
