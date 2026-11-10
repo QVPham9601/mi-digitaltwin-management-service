@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-11-09T15:45:16.787Z",
+  "builtAt": "2026-11-09T19:31:09.680Z",
   "runs": [
     {
       "summary": "Run #1 of the scenario \"CI attack → MMT detection → AI4SOAR block\".\nExecuted at 2026-10-02T07:40:24.299Z by admin, about 38 days before the index was built.\nStatus at index time: completed (status values: pending, running, completed, failed).\nCompleted at 2026-10-02T07:40:26.513Z.\nOutcome: failed.\nDuration: 2 seconds (2214 ms).\nDeployed services:\n- mag: pending\n- ci-sim: failed\n- kafka: pending\n- ai4soar: running\nError log lines: 0.\nWarnings: 3.\nContainer restarts: 0.\nAlerts: 0 from 0 attackers.\nA closed-run report exists for this run.",
