@@ -72,13 +72,65 @@ export const routerSchema = z.object({
 });
 export type RouterOutput = z.infer<typeof routerSchema>;
 
-/** JSON schema handed to the model (Ollama / vLLM structured outputs). */
-export const ROUTER_JSON_SCHEMA = stripJsonSchemaMeta(z.toJSONSchema(routerSchema));
+/**
+ * JSON schema handed to the model (Ollama / vLLM / Anthropic structured outputs).
+ * The state query's `whereAny` (OR groups) is not offered: with it, Anthropic
+ * rejects the router schema as too complex. A run-state "or" on one field is an
+ * `in` predicate instead. `routerSchema` still parses it (default []), and the
+ * state executor still supports it.
+ */
+export const ROUTER_JSON_SCHEMA = withoutStateWhereAny(
+  stripJsonSchemaMeta(z.toJSONSchema(routerSchema))
+);
 
+function withoutStateWhereAny(schema: Record<string, unknown>): Record<string, unknown> {
+  const properties = schema.properties as Record<string, Record<string, unknown>>;
+  const state = properties.state;
+  const stateProperties = { ...(state.properties as Record<string, unknown>) };
+  delete stateProperties.whereAny;
+  const required = Array.isArray(state.required)
+    ? (state.required as string[]).filter((key) => key !== 'whereAny')
+    : state.required;
+  return {
+    ...schema,
+    properties: { ...properties, state: { ...state, properties: stateProperties, required } },
+  };
+}
+
+/**
+ * Keywords some structured-output backends reject (Anthropic refuses numeric
+ * bounds such as `exclusiveMinimum`/`maximum`, which zod emits for `.int()` /
+ * `.positive()`). Dropping them only loosens the schema sent to the model; the
+ * output is still parsed with `routerSchema`, which enforces them.
+ */
 function stripJsonSchemaMeta(schema: Record<string, unknown>): Record<string, unknown> {
-  const rest = { ...schema };
-  delete rest.$schema;
-  return rest;
+  const UNSUPPORTED_SCHEMA_KEYWORDS = new Set([
+    '$schema',
+    'minimum',
+    'maximum',
+    'exclusiveMinimum',
+    'exclusiveMaximum',
+    'multipleOf',
+    'minLength',
+    'maxLength',
+  ]);
+  const strip = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(strip);
+    if (!node || typeof node !== 'object') return node;
+    return Object.fromEntries(
+      Object.entries(node as Record<string, unknown>)
+        .filter(([key]) => !UNSUPPORTED_SCHEMA_KEYWORDS.has(key))
+        .map(([key, value]) => [key, key === 'properties' ? stripProperties(value) : strip(value)])
+    );
+  };
+  // Under `properties` the keys are field names, not keywords: never drop them.
+  const stripProperties = (props: unknown): unknown =>
+    props && typeof props === 'object'
+      ? Object.fromEntries(
+          Object.entries(props as Record<string, unknown>).map(([k, v]) => [k, strip(v)])
+        )
+      : props;
+  return strip(schema) as Record<string, unknown>;
 }
 
 // ---------------------------------------------------------------------------

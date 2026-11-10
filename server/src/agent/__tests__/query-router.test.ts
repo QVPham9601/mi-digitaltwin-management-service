@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { routeQuery, resolveQuery, type ChatJsonFn } from '../query-router.js';
+import { routeQuery, resolveQuery, ROUTER_JSON_SCHEMA, type ChatJsonFn } from '../query-router.js';
 import type { Catalog, CatalogService } from '../structured-retriever.js';
 
 // ---------------------------------------------------------------------------
@@ -531,5 +531,31 @@ describe('routeQuery: state kind', () => {
     });
     expect(outcome.kind).toBe('invalid');
     expect(outcome.reason).toContain('numeric run-state field');
+  });
+});
+
+describe('ROUTER_JSON_SCHEMA', () => {
+  it('carries no numeric or length bounds (Anthropic structured output rejects them)', () => {
+    const text = JSON.stringify(ROUTER_JSON_SCHEMA);
+    for (const keyword of [
+      '$schema',
+      'minimum',
+      'maximum',
+      'exclusiveMinimum',
+      'exclusiveMaximum',
+    ]) {
+      expect(text).not.toContain(`"${keyword}"`);
+    }
+  });
+
+  it('keeps every field name, including the bounded runNumber', () => {
+    const state = (ROUTER_JSON_SCHEMA.properties as Record<string, { properties?: object }>).state;
+    expect(Object.keys(state.properties ?? {})).toContain('runNumber');
+  });
+
+  it('does not offer OR groups in the state query (Anthropic: schema too complex)', () => {
+    const state = (ROUTER_JSON_SCHEMA.properties as Record<string, { properties?: object }>).state;
+    expect(Object.keys(state.properties ?? {})).not.toContain('whereAny');
+    expect(Object.keys(ROUTER_JSON_SCHEMA.properties as object)).toContain('whereAny');
   });
 });
