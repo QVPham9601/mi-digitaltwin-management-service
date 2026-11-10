@@ -95,3 +95,4 @@ copilot-instructions.md
 
 # No need to track testbed files.
 testbed/*
+server/scripts/evaluation-live-state/live-run.json
