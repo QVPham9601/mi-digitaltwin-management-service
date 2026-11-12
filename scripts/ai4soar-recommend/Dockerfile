@@ -15,14 +15,18 @@ FROM python:3.10-slim
 # confluent-kafka — the API, verifier, Shuffle/Caldera and LLM clients are
 # not part of the recommendation-only runtime). numpy/scikit-learn/joblib
 # stay at the exact pins the committed .joblib models were trained with, or
-# Path C fails to unpickle them.
+# Path C fails to unpickle them. openai stays because utils/llm/client.py
+# imports it lazily only when the optional LLM paths are enabled with an API
+# key (OPENAI_BASE_URL may point it at a local OpenAI-compatible endpoint,
+# e.g. Ollama); without a key nothing touches it.
 RUN pip install --no-cache-dir \
       numpy==1.24.3 \
       scikit-learn==1.3.2 \
       joblib==1.3.2 \
       kafka-python==2.0.2 \
       python-dotenv==1.0.1 \
-      'pyyaml>=6.0'
+      'pyyaml>=6.0' \
+      'openai>=1.52.0'
 
 # AI4SOAR sources under /app/ai4soar — deliberately NOT /opt/ai4soar, where
 # the platform mounts the stub's playbook config into

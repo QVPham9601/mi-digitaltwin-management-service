@@ -82,11 +82,17 @@ Left out (and why):
   default: no `OPENAI_API_KEY`/`ANTHROPIC_API_KEY` is set, so
   `utils/llm/client.py` raises `LLMUnavailableError` and both paths return
   `None`. To experiment locally (never on a paid API), the OpenAI SDK reads
-  `OPENAI_BASE_URL`, so pointing the client at Ollama is env-only:
+  `OPENAI_BASE_URL` (verified against Ollama
+  `http://host.docker.internal:11434/v1`), so enabling it is env-only:
   `-e OPENAI_API_KEY=dummy -e OPENAI_BASE_URL=http://host.docker.internal:11434/v1`
-  (verify with the Ollama version at hand; `LLM_MODEL` selects the model).
-  Path C is also automatic: `MITRE` attribution is empty in MMT alerts, so
-  the orchestrator routes to Stage 2 and classifies with the MLP.
+  (with `-e LLM_MODEL=<model>`). Ollama caveats measured on this machine:
+  the qwen3 reasoning models either blow the 30 s LLM timeout (`qwen3:14b`)
+  or return an empty `content` field (`qwen3:4b`) — Path B then logs a call
+  failure — while `phi:latest` works end-to-end (it attributed T1110.001 to
+  the SYN-flood sample, i.e. the wrong technique: the path works, the small
+  local model does not). Path C is also automatic: `MITRE` attribution is
+  empty in MMT alerts, so the orchestrator routes to Stage 2 and classifies
+  with the MLP.
 
 Adaptations (all in the wrapper, `recommend.py` — the clone is not patched):
 
