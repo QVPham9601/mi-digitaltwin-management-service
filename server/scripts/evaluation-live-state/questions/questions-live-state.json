@@ -1,14 +1,139 @@
 {
   "meta": {
-    "author": "",
-    "frozenCommit": "",
-    "writtenOn": "",
-    "minutesSpent": null,
-    "openedChangeScriptOrResults": false
+    "author": "Quoc Viet Pham",
+    "frozenCommit": "f261dbed77a4bb33150ebed0bb1db350f613303e",
+    "writtenOn": "2026-11-12",
+    "minutesSpent": 50,
+    "openedChangeScriptOrResults": false,
+    "answersSource": "intact database as of 2026-11-12 (= the fresh intact_m1 copy at t0: 25 runs). Drafted by the assistant from the run reports, to be checked by the author.",
+    "note": "The first draft was written while looking at intact_m1, which still held three smoke-test runs from 2026-11-10 (#26-#28), including the results of a planned change. Questions L03 and L01 were influenced by them."
   },
   "questions": [
-    { "id": "L01", "category": "latest", "question": "", "myAnswer": "", "note": "" },
-    { "id": "L02", "category": "now", "question": "", "myAnswer": "", "note": "" },
-    { "id": "L03", "category": "control", "question": "", "myAnswer": "", "note": "" }
+    {
+      "id": "L01",
+      "category": "latest",
+      "question": "How did the most recent run of the attack-detect-respond scenario go?",
+      "myAnswer": "Run #25 (2026-10-05 10:01 UTC) passed. It lasted about 10.5 minutes (629 s), and all four deployed services (attack generator, target with its monitor sidecar, alert bus, response tool) were running. No alerts were recorded.",
+      "note": ""
+    },
+    {
+      "id": "L02",
+      "category": "latest",
+      "question": "Did the security monitor raise any alerts during that last run?",
+      "myAnswer": "No. Run #25 recorded 0 alerts. The last run with alerts was #24 (106 alerts, rule 56 SYN flooding, one attacker)."
+    },
+    {
+      "id": "L03",
+      "category": "latest",
+      "question": "I remember a run failing earlier the morning Nov 10. What happened there?",
+      "myAnswer": "False premise: no run exists on 2026-11-10. The latest runs are from 2026-10-05, and the most recent failed one is #24 (2026-10-05 10:00 UTC, target container failed, 106 alerts).",
+      "note": "Kept as a false-premise question: no run exists on 2026-11-10 at t0. The expected behaviour is to say so and point to the latest failed run, not to invent one."
+    },
+    {
+      "id": "L04",
+      "category": "now",
+      "question": "Is anything running on the platform right now?",
+      "myAnswer": "Nothing is confirmed running. The twin still shows run #17 (started 2026-10-05 09:48 UTC) as running, but it never completed and is more than a month old, so the record is almost certainly stale.",
+      "note": ""
+    },
+    {
+      "id": "L05",
+      "category": "now",
+      "question": "What scenarios do we have on the platform, and which ones have actually been exercised?",
+      "myAnswer": "Two scenarios: \"CI attack → MMT detection → AI4SOAR block\" (25 runs) and \"DDoS attack\" (Free5GC 5G core + MMT, never run).",
+      "note": ""
+    },
+    {
+      "id": "L06",
+      "category": "now",
+      "question": "When we deploy the attack-detect-respond scenario, what exactly gets stood up?",
+      "myAnswer": "Five components: MAG attack generator, CI-SIM target, secAnoD monitor (deployed as a sidecar in the CI-SIM pod), Kafka alert bus and AI4SOAR response. That makes four deployments."
+    },
+    {
+      "id": "L07",
+      "category": "history",
+      "question": "How many times has the attack-detect-respond scenario been run so far, and how many of those passed?",
+      "myAnswer": "25 runs: 17 passed, 7 failed (#1, #19-#24), 1 still recorded as running (#17, stale).",
+      "note": ""
+    },
+    {
+      "id": "L08",
+      "category": "history",
+      "question": "What was the longest run we've ever done?",
+      "myAnswer": "Run #25 on 2026-10-05: 629 s, about 10.5 minutes, passed."
+    },
+    {
+      "id": "L09",
+      "category": "history",
+      "question": "Has anyone besides me been launching these runs?",
+      "myAnswer": "No. Every run was launched by admin."
+    },
+    {
+      "id": "L10",
+      "category": "history",
+      "question": "At one point the scenario kept failing over and over. When was that and what was going on?",
+      "myAnswer": "2026-10-05, 09:57-10:00 UTC: six consecutive failed runs (#19-#24), each around 25-36 s. In each one the target (CI-SIM) container failed under the SYN flood (92-109 rule-56 alerts, one attacker). The next run (#25) passed."
+    },
+    {
+      "id": "L11",
+      "category": "health",
+      "question": "In the most recent failed run, which service was actually down?",
+      "myAnswer": "Run #24: the target service CI-SIM (its ci-sim container failed; the secAnoD sidecar kept running)."
+    },
+    {
+      "id": "L12",
+      "category": "health",
+      "question": "In the latest run, was everything actually reachable, or just showing as running?",
+      "myAnswer": "All four services were recorded as running. The run report records only container states, with no reachability or availability measurement, so actual reachability cannot be confirmed."
+    },
+    {
+      "id": "L13",
+      "category": "health",
+      "question": "Has the target service ever been completely unreachable during a run?",
+      "myAnswer": "Reachability was never measured. The closest evidence is that the target's container was recorded as failed in runs #19-#24. (In run #1 it was the monitor sidecar that failed, not the target container.)"
+    },
+    {
+      "id": "L14",
+      "category": "attack",
+      "question": "Which run saw the most alerts?",
+      "myAnswer": "Run #23 (2026-10-05 09:59 UTC): 109 alerts.",
+      "note": ""
+    },
+    {
+      "id": "L15",
+      "category": "attack",
+      "question": "Have we ever seen more than one attacking source in these runs?",
+      "myAnswer": "Never more than one per run. Each run with alerts had exactly one attacking source; the IP changes between runs (14 different pod IPs, 10.244.0.x)."
+    },
+    {
+      "id": "L16",
+      "category": "attack",
+      "question": "How often has the scenario actually detected an attack, across all runs?",
+      "myAnswer": "14 of the 25 runs recorded alerts (#2, #3, #5-#9, #18-#24), all rule 56 \"Probable SYN flooding attack\". The other 11 recorded none."
+    },
+    {
+      "id": "L17",
+      "category": "mixed",
+      "question": "The target service that failed in the last failed run — who provides it and how mature is it?",
+      "myAnswer": "CI-SIM (Critical Infrastructure Simulation), provided by Montimage (MTI), TRL 6 now, expected 8."
+    },
+    {
+      "id": "L18",
+      "category": "mixed",
+      "question": "The alert bus that was unreachable in the latest run — what is that component exactly, in catalog terms?",
+      "myAnswer": "False premise: in the latest run (#25) the alert bus was running. It is the Apache Kafka Alert Bus (KAFKA): a single-node Apache Kafka broker (KRaft) from the Apache Software Foundation, TRL 9, carrying the monitor's alerts to the response module."
+    },
+    {
+      "id": "L19",
+      "category": "control",
+      "question": "Did the scenario pass on its very first attempt?",
+      "myAnswer": "No. Run #1 (2026-10-02 07:40 UTC) failed after 2 s, with the monitor sidecar failed. Run #2 was the first to pass."
+    },
+    {
+      "id": "L20",
+      "category": "control",
+      "question": "That other scenario, the plain DDoS one with the 5G core — has it ever been run?",
+      "myAnswer": "No. The \"DDoS attack\" scenario (Free5GC 5G core + MMT) has never been run."
+    }
   ]
 }
