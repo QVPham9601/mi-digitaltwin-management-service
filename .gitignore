@@ -91,6 +91,7 @@ copilot-instructions.md
 /scripts/*
 !/scripts/e2e-kind/
 !/scripts/secanod-kafka/
+!/scripts/ai4soar-recommend/
 !/scripts/init-mongo.js
 
 # No need to track testbed files.
