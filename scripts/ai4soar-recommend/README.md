@@ -16,23 +16,56 @@ with AI4SOAR's own enrichment + orchestrator — while **executing nothing**:
 
 The platform copies container logs into each run's execution report, so the
 recommendation JSON line the wrapper prints on stdout is how the twin records
-the decision:
+the decision. Real output from this folder's offline test
+(`samples/alerts.json`, rule 56, one attacker), with the rule→technique map
+on (default):
 
 ```json
 {
   "ai4soar": "recommendation",
   "ruleId": "56",
   "attacker": "10.244.0.15",
-  "alertCount": 214,
-  "technique": "T1499",
+  "alertCount": 76,
+  "technique": "T1499.001",
+  "techniqueSource": "rule-map",
   "playbookId": "pb-t1499-block-dos-source",
-  "playbookName": "Block Denial-of-Service Source",
-  "score": 0.87,
-  "path": ["C"],
-  "steps": ["block-ip", "throttle-output", "rate-limit", "create-ticket"],
+  "playbookName": "Block DoS from 10.244.0.15",
+  "score": 1.0,
+  "path": ["A"],
+  "steps": [
+    "Block 10.244.0.15 at firewall for 24h",
+    "Throttle OUTPUT from 10.244.0.15 toward victim",
+    "Rate-limit port {{dst_port}} on mmt-probe-3",
+    "Create DoS incident ticket"
+  ],
   "executed": false
 }
 ```
+
+and the demo run of 2026-11-12 (203 real alerts, attacker `10.244.0.22`,
+which predates the rule map — no technique, no playbook):
+
+```json
+{
+  "ai4soar": "recommendation",
+  "ruleId": "56",
+  "attacker": "10.244.0.22",
+  "alertCount": 203,
+  "technique": null,
+  "techniqueSource": "none",
+  "playbookId": null,
+  "playbookName": null,
+  "score": 0.0,
+  "path": [],
+  "steps": [],
+  "executed": false
+}
+```
+
+The empty result is honest: MMT alerts carry no ATT&CK tags, so Stage 1 /
+Path A has no technique to look up, and Path C's MLP predicted T1053.005
+(0.60), which has no library template. The rule→technique map below exists
+to give Path A a justified technique instead of forcing the ML one.
 
 ## Build
 
@@ -43,6 +76,9 @@ image copies its sources from — the build does not modify it):
 docker build -f scripts/ai4soar-recommend/Dockerfile -t ai4soar-recommend:local .
 kind load docker-image ai4soar-recommend:local --name secsim
 ```
+
+The image is 611 MB (`docker image ls ai4soar-recommend:local`, 2026-11-12)
+and the recommendation workload runs in ~70 MiB of memory.
 
 ## Switching on and off
 
@@ -109,6 +145,19 @@ description, srcIp, dstIp}}` envelope. `mmt_report_to_alert` maps between
   one open incident per (rule, attacker) and recommends ~30 s after the last
   report of that incident (`RECOMMEND_QUIET_GAP_S`), so a flood of hundreds
   of alerts gives a single recommendation (`alertCount` records how many).
+- **Rule→technique map** (`rule-techniques.json`, `RECOMMEND_RULE_MAP=on|off`,
+  default on): MMT alerts carry no ATT&CK tags, so the orchestrator's
+  Stage 1 / Path A (direct library lookup) is skipped and the ML Stage 2
+  (Path C) decides — and its MLP predicted T1053.005 for the SYN flood,
+  which has no playbook. The map gives a _justified_ technique for a known
+  rule: entry `56 → T1499.001` (Endpoint DoS: OS Exhaustion Flood — ATT&CK
+  lists SYN floods under it; see the entry's `reason`/`source`). The
+  wrapper writes it into `EnrichedAlert.technique_ids`, where the
+  orchestrator's Stage 1 gate reads it, and Path A then returns
+  `pb-t1499-block-dos-source` with confidence 1.0 (`"techniqueSource":
+"rule-map"` in the JSON line). Unmapped rules, or `RECOMMEND_RULE_MAP=off`,
+  keep the default Path-C behaviour (`"techniqueSource": "none"`). Only
+  rules that can be justified belong in the file.
 - **Health endpoint.** A tiny stdlib server answers the readiness gate's
   `GET /health` on :5000; AI4SOAR's own Flask app is not part of the image.
 - No patch file is needed.
