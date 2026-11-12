@@ -6,9 +6,14 @@ Write these **after** the code is frozen (git tag `live-state-freeze`), and befo
 
 Questions an operator would ask about the **runs of the scenarios** on the platform, in
 your own words, without field names or project names. Look only at the platform's
-scenario pages and run reports (what the UI shows). Do not open
-`apply-change.mjs` or any results file: the questions must not be written around the
+scenario pages and run reports (what the UI shows). Do not open `apply-change.mjs`,
+`real-change.mjs` or any results file: the questions must not be written around the
 planned changes.
+
+Out of scope: questions about the **text** of logs, alert messages or a tool's
+recommendation (e.g. "what did the response tool recommend?"). The live-state reader
+covers run-level facts (status, outcome, timing, alert and attacker counts, service
+health, restarts, error counts), not log contents.
 
 | `category` | How many | Examples of the kind (do not copy)                                                 |
 | ---------- | -------- | ---------------------------------------------------------------------------------- |
@@ -25,7 +30,9 @@ planned changes.
 - `id`: L01, L02, …
 - `category`: one of the above.
 - `question`: exactly as you would ask it.
-- `myAnswer`: what you believe the answer is **today**, from the platform.
+- `myAnswer`: what you believe the answer is **today**, from the platform. Only today:
+  the answers after the change are computed from the database, since you do not know
+  the change.
 - `note` (optional): ambiguity, e.g. what "last run" means if runs overlap.
 
 Fill in the `meta` block and hand over the file.
