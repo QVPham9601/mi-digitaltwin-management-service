@@ -1,0 +1,3650 @@
+[
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.168179,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.1681,
+        "counter": 24,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.168109,
+        "counter": 25,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.168154,
+        "counter": 28,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.168179,
+        "counter": 31,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.168197,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.168151,
+        "counter": 27,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.168154,
+        "counter": 28,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.168179,
+        "counter": 31,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.168197,
+        "counter": 34,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.168687,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.168177,
+        "counter": 30,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.168179,
+        "counter": 31,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.168197,
+        "counter": 34,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.168687,
+        "counter": 48,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.168759,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.168195,
+        "counter": 33,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.168197,
+        "counter": 34,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.168687,
+        "counter": 48,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.168759,
+        "counter": 53,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.169045,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.168683,
+        "counter": 47,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.168687,
+        "counter": 48,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.168759,
+        "counter": 53,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.169045,
+        "counter": 65,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.169072,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.168753,
+        "counter": 51,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.168759,
+        "counter": 53,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.169045,
+        "counter": 65,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.169072,
+        "counter": 68,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.169466,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.169042,
+        "counter": 64,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.169045,
+        "counter": 65,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.169072,
+        "counter": 68,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.169466,
+        "counter": 79,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.169711,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.16907,
+        "counter": 67,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.169072,
+        "counter": 68,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.169466,
+        "counter": 79,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.169711,
+        "counter": 86,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.170811,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.169462,
+        "counter": 78,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.169466,
+        "counter": 79,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.169711,
+        "counter": 86,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.170811,
+        "counter": 120,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.170948,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.169707,
+        "counter": 85,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.169711,
+        "counter": 86,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.170811,
+        "counter": 120,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.170948,
+        "counter": 127,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.171082,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.170807,
+        "counter": 119,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.170811,
+        "counter": 120,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.170948,
+        "counter": 127,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.171082,
+        "counter": 134,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.171112,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.170945,
+        "counter": 126,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.170948,
+        "counter": 127,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.171082,
+        "counter": 134,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.171112,
+        "counter": 137,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.171135,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.171078,
+        "counter": 133,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.171082,
+        "counter": 134,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.171112,
+        "counter": 137,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.171135,
+        "counter": 142,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.172021,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.171109,
+        "counter": 136,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.171112,
+        "counter": 137,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.171135,
+        "counter": 142,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.172021,
+        "counter": 163,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.172145,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.171133,
+        "counter": 141,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.171135,
+        "counter": 142,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.172021,
+        "counter": 163,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.172145,
+        "counter": 177,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.172414,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.172016,
+        "counter": 162,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.172021,
+        "counter": 163,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.172145,
+        "counter": 177,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.172414,
+        "counter": 187,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.172502,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.172141,
+        "counter": 174,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.172145,
+        "counter": 177,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.172414,
+        "counter": 187,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.172502,
+        "counter": 193,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.173323,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.172409,
+        "counter": 186,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.172414,
+        "counter": 187,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.172502,
+        "counter": 193,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.173323,
+        "counter": 220,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.173368,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.172498,
+        "counter": 192,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.172502,
+        "counter": 193,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.173323,
+        "counter": 220,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.173368,
+        "counter": 223,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.17352,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.17332,
+        "counter": 219,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.173323,
+        "counter": 220,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.173368,
+        "counter": 223,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.17352,
+        "counter": 231,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.173875,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.173366,
+        "counter": 222,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.173368,
+        "counter": 223,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.17352,
+        "counter": 231,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.173875,
+        "counter": 248,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.174024,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.173517,
+        "counter": 230,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.17352,
+        "counter": 231,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.173875,
+        "counter": 248,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.174024,
+        "counter": 254,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.174467,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.173872,
+        "counter": 247,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.173875,
+        "counter": 248,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.174024,
+        "counter": 254,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.174467,
+        "counter": 269,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.174627,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.17402,
+        "counter": 253,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.174024,
+        "counter": 254,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.174467,
+        "counter": 269,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.174627,
+        "counter": 276,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.175096,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.174464,
+        "counter": 268,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.174467,
+        "counter": 269,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.174627,
+        "counter": 276,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.175096,
+        "counter": 302,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.175292,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.174624,
+        "counter": 275,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.174627,
+        "counter": 276,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.175096,
+        "counter": 302,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.175292,
+        "counter": 311,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.175618,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.175093,
+        "counter": 301,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.175096,
+        "counter": 302,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.175292,
+        "counter": 311,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.175618,
+        "counter": 319,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.175749,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.175282,
+        "counter": 310,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.175292,
+        "counter": 311,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.175618,
+        "counter": 319,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.175749,
+        "counter": 326,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.176407,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.175615,
+        "counter": 318,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.175618,
+        "counter": 319,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.175749,
+        "counter": 326,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.176407,
+        "counter": 343,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.176507,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.175746,
+        "counter": 325,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.175749,
+        "counter": 326,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.176407,
+        "counter": 343,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.176507,
+        "counter": 351,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.177018,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.176403,
+        "counter": 342,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.176407,
+        "counter": 343,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.176507,
+        "counter": 351,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.177018,
+        "counter": 371,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.177044,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.176504,
+        "counter": 350,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.176507,
+        "counter": 351,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.177018,
+        "counter": 371,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.177044,
+        "counter": 374,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.177528,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.177016,
+        "counter": 370,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.177018,
+        "counter": 371,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.177044,
+        "counter": 374,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.177528,
+        "counter": 398,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.177672,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.177042,
+        "counter": 373,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.177044,
+        "counter": 374,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.177528,
+        "counter": 398,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.177672,
+        "counter": 405,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.177701,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.177524,
+        "counter": 397,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.177528,
+        "counter": 398,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.177672,
+        "counter": 405,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.177701,
+        "counter": 408,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.178533,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.177669,
+        "counter": 404,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.177672,
+        "counter": 405,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.177701,
+        "counter": 408,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.178533,
+        "counter": 432,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.178629,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.177699,
+        "counter": 407,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.177701,
+        "counter": 408,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.178533,
+        "counter": 432,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.178629,
+        "counter": 438,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.178797,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.17853,
+        "counter": 431,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.178533,
+        "counter": 432,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.178629,
+        "counter": 438,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.178797,
+        "counter": 447,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.179494,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.178627,
+        "counter": 437,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.178629,
+        "counter": 438,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.178797,
+        "counter": 447,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.179494,
+        "counter": 467,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.180065,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.178794,
+        "counter": 446,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.178797,
+        "counter": 447,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.179494,
+        "counter": 467,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.180065,
+        "counter": 493,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.180185,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.179492,
+        "counter": 466,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.179494,
+        "counter": 467,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.180065,
+        "counter": 493,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.180185,
+        "counter": 498,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.180217,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.178923,
+        "counter": 457,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.179494,
+        "counter": 467,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.180185,
+        "counter": 498,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.180217,
+        "counter": 501,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.181179,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.180062,
+        "counter": 492,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.180065,
+        "counter": 493,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.180217,
+        "counter": 501,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.181179,
+        "counter": 531,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.181256,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.180182,
+        "counter": 497,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.180185,
+        "counter": 498,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.181179,
+        "counter": 531,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.181256,
+        "counter": 541,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.181698,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.180215,
+        "counter": 500,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.180217,
+        "counter": 501,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.181256,
+        "counter": 541,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.181698,
+        "counter": 560,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.181765,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.181175,
+        "counter": 530,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.181179,
+        "counter": 531,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.181698,
+        "counter": 560,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.181765,
+        "counter": 566,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.182321,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.181254,
+        "counter": 540,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.181256,
+        "counter": 541,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.181765,
+        "counter": 566,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.182321,
+        "counter": 587,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.182445,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.181694,
+        "counter": 558,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.181698,
+        "counter": 560,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.182321,
+        "counter": 587,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.182445,
+        "counter": 592,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.18265,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.181763,
+        "counter": 565,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.181765,
+        "counter": 566,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.182445,
+        "counter": 592,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.18265,
+        "counter": 601,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.182673,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.182317,
+        "counter": 586,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.182321,
+        "counter": 587,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.18265,
+        "counter": 601,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.182673,
+        "counter": 604,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.182934,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.182443,
+        "counter": 591,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.182445,
+        "counter": 592,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.182673,
+        "counter": 604,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.182934,
+        "counter": 619,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.183051,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.182647,
+        "counter": 600,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.18265,
+        "counter": 601,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.182934,
+        "counter": 619,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.183051,
+        "counter": 626,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.183449,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.182672,
+        "counter": 603,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.182673,
+        "counter": 604,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.183051,
+        "counter": 626,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.183449,
+        "counter": 638,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926937.183873,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926937.182931,
+        "counter": 618,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926937.182934,
+        "counter": 619,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926937.183449,
+        "counter": 638,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926937.183873,
+        "counter": 648,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.743148,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.743071,
+        "counter": 1507,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.743079,
+        "counter": 1508,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.743123,
+        "counter": 1511,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.743148,
+        "counter": 1514,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.743177,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.74312,
+        "counter": 1510,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.743123,
+        "counter": 1511,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.743148,
+        "counter": 1514,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.743177,
+        "counter": 1517,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.743387,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.743146,
+        "counter": 1513,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.743148,
+        "counter": 1514,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.743177,
+        "counter": 1517,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.743387,
+        "counter": 1522,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.743419,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.743175,
+        "counter": 1516,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.743177,
+        "counter": 1517,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.743387,
+        "counter": 1522,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.743419,
+        "counter": 1527,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.743688,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.743383,
+        "counter": 1521,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.743387,
+        "counter": 1522,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.743419,
+        "counter": 1527,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.743688,
+        "counter": 1537,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.744013,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.743417,
+        "counter": 1526,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.743419,
+        "counter": 1527,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.743688,
+        "counter": 1537,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.744013,
+        "counter": 1548,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.744751,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.743685,
+        "counter": 1536,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.743688,
+        "counter": 1537,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.744013,
+        "counter": 1548,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.744751,
+        "counter": 1569,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.744778,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.744008,
+        "counter": 1547,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.744013,
+        "counter": 1548,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.744751,
+        "counter": 1569,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.744778,
+        "counter": 1572,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.744806,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.744747,
+        "counter": 1568,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.744751,
+        "counter": 1569,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.744778,
+        "counter": 1572,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.744806,
+        "counter": 1576,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.744993,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.744776,
+        "counter": 1571,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.744778,
+        "counter": 1572,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.744806,
+        "counter": 1576,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.744993,
+        "counter": 1589,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.745319,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.744804,
+        "counter": 1575,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.744806,
+        "counter": 1576,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.744993,
+        "counter": 1589,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.745319,
+        "counter": 1606,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.745553,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.744989,
+        "counter": 1588,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.744993,
+        "counter": 1589,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.745319,
+        "counter": 1606,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.745553,
+        "counter": 1613,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.745802,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.745315,
+        "counter": 1604,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.745319,
+        "counter": 1606,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.745553,
+        "counter": 1613,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.745802,
+        "counter": 1622,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.746119,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.74555,
+        "counter": 1612,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.745553,
+        "counter": 1613,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.745802,
+        "counter": 1622,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.746119,
+        "counter": 1637,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.74671,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.745798,
+        "counter": 1621,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.745802,
+        "counter": 1622,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.746119,
+        "counter": 1637,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.74671,
+        "counter": 1655,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.746844,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.746114,
+        "counter": 1636,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.746119,
+        "counter": 1637,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.74671,
+        "counter": 1655,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.746844,
+        "counter": 1663,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.746955,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.746706,
+        "counter": 1654,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.74671,
+        "counter": 1655,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.746844,
+        "counter": 1663,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.746955,
+        "counter": 1668,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.747611,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.746243,
+        "counter": 1641,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.74671,
+        "counter": 1655,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.746955,
+        "counter": 1668,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.747611,
+        "counter": 1685,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.747751,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.74684,
+        "counter": 1662,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.746844,
+        "counter": 1663,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.747611,
+        "counter": 1685,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.747751,
+        "counter": 1691,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.74814,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.746952,
+        "counter": 1667,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.746955,
+        "counter": 1668,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.747751,
+        "counter": 1691,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.74814,
+        "counter": 1703,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.748476,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.747607,
+        "counter": 1684,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.747611,
+        "counter": 1685,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.74814,
+        "counter": 1703,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.748476,
+        "counter": 1713,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ],
+  [
+    10,
+    3,
+    "eth0",
+    1790926967.748657,
+    56,
+    "detected",
+    "attack",
+    "Probable SYN flooding attack (Half TCP handshake without TCP RST)",
+    {
+      "event_1": {
+        "timestamp": 1790926967.747748,
+        "counter": 1690,
+        "attributes": [
+          ["ip.src", "10.244.0.15"],
+          ["ip.dst", "10.244.0.13"],
+          ["tcp.flags", 2]
+        ]
+      },
+      "event_2": {
+        "timestamp": 1790926967.747751,
+        "counter": 1691,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_3": {
+        "timestamp": 1790926967.748476,
+        "counter": 1713,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      },
+      "event_4": {
+        "timestamp": 1790926967.748657,
+        "counter": 1720,
+        "attributes": [
+          ["ip.src", "10.244.0.13"],
+          ["ip.dst", "10.244.0.15"],
+          ["tcp.flags", 18]
+        ]
+      }
+    }
+  ]
+]
