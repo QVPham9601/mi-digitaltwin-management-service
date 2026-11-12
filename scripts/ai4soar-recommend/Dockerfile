@@ -40,6 +40,10 @@ COPY ai4soar/playbooks playbooks/
 COPY ai4soar/models/mlp_recommender.joblib ai4soar/models/feature_engineer.joblib models/
 
 COPY scripts/ai4soar-recommend/recommend.py /app/recommend.py
+# Optional rule→technique attribution (RECOMMEND_RULE_MAP, default on):
+# SECANOD rule ID → ATT&CK technique, written into EnrichedAlert.technique_ids
+# so Stage 1 / Path A runs for mapped rules.
+COPY scripts/ai4soar-recommend/rule-techniques.json /app/rule-techniques.json
 
 # Paths A and C only: with no OPENAI_API_KEY/ANTHROPIC_API_KEY set, the LLM
 # paths B and D disable themselves (utils/llm/client.py raises

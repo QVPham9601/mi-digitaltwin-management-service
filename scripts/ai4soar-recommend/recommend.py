@@ -53,8 +53,42 @@ QUIET_GAP_S = float(os.environ.get('RECOMMEND_QUIET_GAP_S', '30'))
 FLUSH_CHECK_S = float(os.environ.get('RECOMMEND_FLUSH_CHECK_S', '5'))
 K = int(os.environ.get('RECOMMEND_K', '3'))
 OFFLINE_FILE = os.environ.get('RECOMMEND_OFFLINE')
+# RECOMMEND_RULE_MAP=on|off (default on): with the map on, a rule→technique
+# entry (rule-techniques.json) is written into the enriched alert so the
+# orchestrator's Stage 1 / Path A (direct library lookup) runs instead of
+# the ML Stage 2 (Path C) that unmapped alerts get.
+RULE_MAP_ON = os.environ.get('RECOMMEND_RULE_MAP', 'on').strip().lower() not in (
+    'off', 'false', '0', 'no'
+)
+RULE_MAP_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'rule-techniques.json'
+)
 
 logging.basicConfig(level=logging.INFO, format='[ai4soar] %(message)s')
+
+
+def load_rule_map():
+    """MMT rule ID → {technique, name} from rule-techniques.json (only rules
+    with a justified mapping are in the file; unmapped rules keep the
+    default behaviour). Empty on any read/parse problem — never fatal."""
+    try:
+        with open(RULE_MAP_FILE, 'r', encoding='utf-8') as handle:
+            entries = json.load(handle)
+        rule_map = {}
+        for rule, entry in entries.items():
+            if isinstance(entry, dict) and entry.get('technique'):
+                rule_map[str(rule)] = entry
+        return rule_map
+    except (OSError, ValueError) as exc:
+        log.warning('rule map %s unusable: %s', RULE_MAP_FILE, exc)
+        return {}
+
+
+RULE_MAP = load_rule_map() if RULE_MAP_ON else {}
+if RULE_MAP_ON:
+    log.info('rule map on: %s', ', '.join(sorted(RULE_MAP)))
+else:
+    log.info('rule map off (RECOMMEND_RULE_MAP=off)')
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +220,20 @@ def recommend(incident):
         log.warning('incident rule=%s attacker=%s has no usable report', rule, attacker)
         return
     enriched = PIPELINE.enrich(alert)
+    # Optional rule→technique attribution: write the mapped technique where
+    # the orchestrator reads it (EnrichedAlert.technique_ids gates Stage 1 /
+    # Path A, see core/intelligent_orchestration/orchestrator.py) — Stage 1
+    # otherwise skips unmapped alerts to the ML Stage 2 (Path C).
+    mapped = RULE_MAP.get(str(rule) if rule is not None else '')
+    if mapped:
+        enriched.technique_ids = [mapped['technique']]
+        enriched.technique_names = [mapped.get('name', mapped['technique'])]
+        technique_source = 'rule-map'
+    else:
+        technique_source = 'none'
+    started = time.perf_counter()
     result = ORCHESTRATOR.orchestrate(enriched, k=K)
+    elapsed_ms = (time.perf_counter() - started) * 1000
 
     playbook = result.playbooks[0] if result.playbooks else None
     cacao = (playbook or {}).get('cacao', {})
@@ -201,6 +248,7 @@ def recommend(incident):
         'attacker': attacker,
         'alertCount': len(alerts),
         'technique': (result.technique_ids or [None])[0],
+        'techniqueSource': technique_source,
         'playbookId': (playbook or {}).get('id'),
         'playbookName': cacao.get('name') or (playbook or {}).get('name'),
         'score': round(result.confidence, 4),
@@ -216,10 +264,10 @@ def recommend(incident):
     ) or '(no parameters filled)'
     missing = (playbook or {}).get('parameters_missing', [])
     log.info(
-        'recommendation for rule=%s attacker=%s (%d alerts): technique=%s '
-        'playbook=%s score=%.3f paths=%s — NOT executed%s',
-        rule, attacker, len(alerts), line['technique'], line['playbookId'],
-        result.confidence, result.paths_used,
+        'recommendation for rule=%s attacker=%s (%d alerts): technique=%s (%s) '
+        'playbook=%s score=%.3f paths=%s %.0f ms — NOT executed%s',
+        rule, attacker, len(alerts), line['technique'], technique_source,
+        line['playbookId'], result.confidence, result.paths_used, elapsed_ms,
         f' (missing parameters: {", ".join(missing)})' if missing else '',
     )
     if playbook:

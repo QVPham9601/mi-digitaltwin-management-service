@@ -1,0 +1,8 @@
+{
+  "56": {
+    "technique": "T1499.001",
+    "name": "OS Exhaustion Flood",
+    "reason": "Rule 56 fires on SYN flooding — half TCP handshakes without RST — i.e. exhausting a service by flooding it with TCP connections; ATT&CK lists SYN floods under Endpoint DoS: OS Exhaustion Flood.",
+    "source": "SECANOD verdict text of rule 56 ('Probable SYN flooding attack (Half TCP handshake without TCP RST)', intact_m1 executionreports.alerts) and MITRE ATT&CK T1499.001 — https://attack.mitre.org/techniques/T1499/001/"
+  }
+}
