@@ -26,6 +26,10 @@ user) and local `qwen3:14b`. Claude only as a comparison reference, never as par
 1. Check `git diff live-state-freeze -- server/src` is empty.
 2. `copy-db.sh` (fresh `intact_m1`). Server with `MONGODB_URI=…/intact_m1`,
    `AGENT_EVAL_OPTIONS=true AGENT_LLM_TITLES=false RAG_RETRIEVAL_MODE=vector`.
+   Optional: to run the real variant with the real AI4SOAR engine
+   (recommendation-only) instead of the reaction stub, follow that step with
+   `node scripts/ai4soar-recommend/use-real-ai4soar.mjs` (see that folder's
+   README — `copy-db.sh` resets to the stub, so re-run it after every copy).
 3. **t0:** `dump-state.mjs --label=t0`, `build-static-index.mjs`. Run V, S, T × 3 reps.
 4. **Change**, one of two variants (record which one):
    - **Real incident (preferred).** `real-change.mjs --incident` (deploys the demo on
